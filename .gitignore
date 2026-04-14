@@ -1,0 +1,160 @@
+# Общие для .NET
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.pidb
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.bin
+*.obj
+*.dll
+*.exe
+*.exe.config
+*.cache
+*.pdb
+*.mdb
+*.mono
+*.dll.mdb
+*.exe.mdb
+
+# Папки сборки и вывода
+/bin/
+/obj/
+/out/
+/Debug/
+/Release/
+/x64/
+/x86/
+/Build/
+
+# Файлы пользовательских настроек Visual Studio
+/.vs/
+/.vscode/
+*.csproj.user
+*.csproj.userprefs
+*.sln.ide
+*.sln.ide.user
+.vs/
+
+# Файлы резервных копий
+*~
+*.bak
+*.tmp
+*.temp
+*.swp
+*.orig
+
+# NuGet
+/packages/
+*.nupkg
+*.snupkg
+NuGet.exe
+nuget.exe
+*.nuget.targets
+*.nuget.props
+packages.config.backup
+project.lock.json
+project.assets.json
+*.nuget.msp
+
+# Результаты тестов
+/TestResults/
+*.trx
+*.coverage
+*.coveragexml
+*.coveragejson
+*.coveragexml
+*.htmlcoverage
+*.coverage
+*.coveragexml
+*.dotCover
+*.coveragexml
+*.VisualState.xml
+TestResult.xml
+*.testsettings
+
+# Покрытие кода (Coverlet, OpenCover, etc.)
+*.opencover.xml
+*.dotcover
+*.cobertura.xml
+*.coverlet.json
+*.coverlet.xml
+/CoverageResults/
+
+# Профилирование и диагностика
+*.diagsession
+*.perfview
+*.etl
+*.etlx
+*.clrmd
+*.dump
+*.dmp
+*.samples
+*.trace
+*.speedscope
+*.vsp
+*.vspscc
+*.vsmdi
+*.testsettings
+*.runsettings
+*.traceconfig
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+*.DotSettings.user
+*.csproj.DotSettings
+
+# MonoDevelop / Xamarin Studio
+*.userprefs
+*.pidb
+*.unityproj
+*.usertasks
+
+# Репозитории пакетов
+/*/packages/
+/!*/packages/build/
+
+# Файлы журналов
+*.log
+*.logs
+*.txt.log
+logs/
+Logs/
+
+# Файлы системные
+Thumbs.db
+.DS_Store
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.tmp
+
+# Файлы локальной базы данных
+*.mdf
+*.ldf
+*.sdf
+*.sqlite
+*.db
+*.localdb
+
+# Файлы отчётов ошибок
+*.err
+*.error
+CrashReport.*
+crashdump.*
+
+# Visual Studio кеши и временные файлы
+.vs/
+.vs/**/*
+**/.vs/
+**/.vs/**/*
+
+# Альтернативный вариант — забить на всё внутри .vs
+.vs/
