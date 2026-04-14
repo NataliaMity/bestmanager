@@ -11,14 +11,7 @@
 using System;
 using System.Reflection;
 
-[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("0beb04d2-4577-47fb-a06c-a2f5c048b4cc")]
-[assembly: System.Reflection.AssemblyCompanyAttribute("Web")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72f599147d22de6f8e61d7a1b54674f805fb1851")]
-[assembly: System.Reflection.AssemblyProductAttribute("Web")]
-[assembly: System.Reflection.AssemblyTitleAttribute("Web")]
-[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("Microsoft.AspNetCore.OpenApi")]
 
 // Создано классом WriteCodeFragment MSBuild.
 

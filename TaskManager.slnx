@@ -1,4 +1,5 @@
 <Solution>
-  <Project Path="D:/Work/repos/TaskManager/Domain/Domain.csproj" Id="3325d0bc-8b16-4e99-bb06-739989ec7605" />
+  <Project Path="Application/Application.csproj" Id="35e2bfae-5485-4222-860e-c203fd178397" />
+  <Project Path="Domain/Domain.csproj" />
   <Project Path="Web/Web.csproj" Id="045bf3bf-8a36-4719-a275-ea4d7d44a616" />
 </Solution>

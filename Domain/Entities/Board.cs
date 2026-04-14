@@ -8,13 +8,25 @@
         public DateTime Created {  get; private set; }
         public DateTime Updated { get; private set; }
 
-        public Board (string name, string description, DateTime created, DateTime updated)
+        public Board (string name, string description)
         {
             ID = Guid.NewGuid();
-            Name = name;
-            Description = description;
-            Created = created;
-            Updated = updated;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Created = DateTime.Now;
+            Updated = DateTime.Now;
+        }
+
+        public void UpdateName(string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new ArgumentException("Название задачи не может быть пустым");
+            Name = newName;
+        }
+
+        public void UpdateDescription(string newDescription)
+        {
+            Description = newDescription ?? string.Empty;
         }
     }
 }

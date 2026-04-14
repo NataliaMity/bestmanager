@@ -1,0 +1,9 @@
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.csproj.AssemblyReference.cache
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.GeneratedMSBuildEditorConfig.editorconfig
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.AssemblyInfoInputs.cache
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.AssemblyInfo.cs
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.csproj.CoreCompileInputs.cache
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.MvcApplicationPartsAssemblyInfo.cs
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.MvcApplicationPartsAssemblyInfo.cache
+C:\repo\bestmaneger\Web\obj\Debug\net10.0\Web.sourcelink.json

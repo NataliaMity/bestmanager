@@ -9,16 +9,52 @@
         public DateTime Created { get; private set; }
         public DateTime Updated { get; private set; }
         public DateTime Deadline { get; private set; }
+        public int Order { get; private set; }
 
-        public Task(string name, string description, Column column, DateTime created, DateTime updated, DateTime deadline) 
+        public Task(string name, string description, Column column, int order) 
         {
-            Name = name;
-            Description = description;
-            Column = column;
-            Created = created;
-            Updated = updated;
+            ID = Guid.NewGuid();
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Column = column ?? throw new ArgumentNullException(nameof(column));
+            Created = DateTime.UtcNow;
+            Updated = DateTime.UtcNow;
+            Description = string.Empty;
+            Order = order;
+        }
+
+        public void UpdateName(string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new ArgumentException("Название задачи не может быть пустым");
+            if(Name  == newName) return;
+
+            Name = newName;
+            Updated = DateTime.Now;
+        }
+
+        public void UpdateDescription(string newDescription)
+        {
+            if(Description  == newDescription) return;
+
+            Description = newDescription ?? string.Empty;
+            Updated = DateTime.Now;
+        }
+
+        public void MoveTo(Column newColumn)
+        {
+            Column = newColumn;
+            Updated = DateTime.Now;
+        }
+
+        public void SetDeadline(DateTime deadline)
+        {
+            if (deadline < DateTime.Now)
+                throw new ArgumentException("Дедлайн не может быть раньше текущей даты");
             Deadline = deadline;
+            Updated = DateTime.Now;
         }
 
     }
+
 }
