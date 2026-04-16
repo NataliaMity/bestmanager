@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\repo\\bestmaneger\\Web\\Web.csproj": {}
+    "D:\\Work\\repos\\TaskManager\\Web\\Web.csproj": {}
   },
   "projects": {
-    "C:\\repo\\bestmaneger\\Web\\Web.csproj": {
+    "D:\\Work\\repos\\TaskManager\\Web\\Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\repo\\bestmaneger\\Web\\Web.csproj",
+        "projectUniqueName": "D:\\Work\\repos\\TaskManager\\Web\\Web.csproj",
         "projectName": "Web",
-        "projectPath": "C:\\repo\\bestmaneger\\Web\\Web.csproj",
-        "packagesPath": "C:\\Users\\Н\\.nuget\\packages\\",
-        "outputPath": "C:\\repo\\bestmaneger\\Web\\obj\\",
+        "projectPath": "D:\\Work\\repos\\TaskManager\\Web\\Web.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "D:\\Work\\repos\\TaskManager\\Web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Н\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "D:\\Work\\repos\\id_standart\\Source\\Bin\\packages": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

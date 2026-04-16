@@ -6,8 +6,8 @@ namespace Domain.Interfaces
     {
         Task<Board?> GetByIDAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Board AddAsync(Board board, CancellationToken cancellationToken = default);
-        Board DeleteAsync(Board board, CancellationToken cancellationToken = default);
-        Board UpdateAsync(Board board, CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task AddAsync(Board board, CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task UpdateAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

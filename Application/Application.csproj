@@ -11,14 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UseCases\Boards\CreateBoard\" />
-    <Folder Include="UseCases\Boards\UpdateBoard\" />
-    <Folder Include="UseCases\Boards\DeleteBoard\" />
-    <Folder Include="UseCases\Boards\GetBoards\" />
-    <Folder Include="UseCases\Columns\CreateColumn\" />
-    <Folder Include="UseCases\Columns\UpdateColumn\" />
-    <Folder Include="UseCases\Columns\DeleteColumn\" />
-    <Folder Include="UseCases\Columns\GetColumnsByBoard\" />
     <Folder Include="UseCases\Tasks\UpdateTask\" />
     <Folder Include="UseCases\Tasks\ReorderTask\" />
   </ItemGroup>

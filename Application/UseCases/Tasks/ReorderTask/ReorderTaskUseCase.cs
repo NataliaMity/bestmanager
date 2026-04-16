@@ -2,13 +2,9 @@
 
 namespace Application.UseCases.Tasks.ReorderTask
 {
-    public class ReorderTaskUseCase
+    public class ReorderTaskUseCase(ITaskRepository taskRepository)
     {
-        private readonly ITaskRepository taskRepository;
-        public ReorderTaskUseCase(ITaskRepository taskRepository) 
-        {
-            this.taskRepository = taskRepository;
-        }
+        private readonly ITaskRepository taskRepository = taskRepository;
 
         public async Task ExecuteAsync(ReorderTaskRequest request, CancellationToken cancellationToken = default)
         {

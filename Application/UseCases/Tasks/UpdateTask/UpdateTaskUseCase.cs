@@ -2,14 +2,9 @@
 
 namespace Application.UseCases.Tasks.UpdateTask
 {
-    public class UpdateTaskUseCase
+    public class UpdateTaskUseCase(ITaskRepository taskRepository)
     {
-        private readonly ITaskRepository taskRepository;
-
-        public UpdateTaskUseCase(ITaskRepository taskRepository) 
-        {
-            this.taskRepository = taskRepository;
-        }
+        private readonly ITaskRepository taskRepository = taskRepository;
 
         public async Task ExecuteAsync(UpdateTaskRequest request, CancellationToken cancellationToken = default)
         {

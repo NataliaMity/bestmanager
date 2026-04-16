@@ -2,7 +2,7 @@
 {
     public class Board
     {
-        public Guid ID { get; }
+        public Guid Id { get; }
         public string Name { get; private set; }
         public string Description { get; private set; }
         public DateTime Created {  get; private set; }
@@ -10,7 +10,7 @@
 
         public Board (string name, string description)
         {
-            ID = Guid.NewGuid();
+            Id = Guid.NewGuid();
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Description = description ?? throw new ArgumentNullException(nameof(description));
             Created = DateTime.Now;

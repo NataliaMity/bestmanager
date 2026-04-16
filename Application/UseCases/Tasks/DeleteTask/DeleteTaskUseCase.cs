@@ -2,14 +2,9 @@
 
 namespace Application.UseCases.Tasks.DeleteTask
 {
-    public class DeleteTaskUseCase
+    public class DeleteTaskUseCase(ITaskRepository taskRepository)
     {
-        private readonly ITaskRepository taskRepository;
-
-        public DeleteTaskUseCase(ITaskRepository taskRepository)
-        {
-            this.taskRepository = taskRepository;
-        }
+        private readonly ITaskRepository taskRepository = taskRepository;
 
         public async Task ExecuteAsync(DeleteTaskRequest request, CancellationToken cancellationToken = default)
         {

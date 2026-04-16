@@ -2,16 +2,11 @@
 
 namespace Application.UseCases.Tasks.MoveTask
 {
-    public class MoveTaskUseCase
+    public class MoveTaskUseCase(ITaskRepository taskRepository,
+                            IColumnRepository columnRepository)
     {
-        private readonly ITaskRepository taskRepository;
-        private readonly IColumnRepository columnRepository;
-        public MoveTaskUseCase(ITaskRepository taskRepository,
-                                IColumnRepository columnRepository) 
-        { 
-            this.taskRepository = taskRepository;
-            this.columnRepository = columnRepository;
-        }
+        private readonly ITaskRepository taskRepository = taskRepository;
+        private readonly IColumnRepository columnRepository = columnRepository;
 
         public async Task ExecuteAsync(MoveTaskRequest request, CancellationToken cancellationToken = default)
         {
@@ -19,7 +14,7 @@ namespace Application.UseCases.Tasks.MoveTask
             if (task == null)
                 throw new Exception($"Не удалось найти задачу с Id {request.TaskId}");
 
-            var column = await columnRepository.GetByIDAsync(request.ColumnId, cancellationToken);
+            var column = await columnRepository.GetByIdAsync(request.ColumnId, cancellationToken);
             if (column == null)
                 throw new Exception($"Не удалось найти колонку с Id {request.ColumnId}");
             

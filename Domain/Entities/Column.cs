@@ -2,14 +2,14 @@
 {
     public class Column
     {
-        public Guid ID { get; }
+        public Guid Id { get; }
         public string Name { get; private set; }
         public Board Board { get; private set; }
         public int Order {  get; private set; }
 
         public Column(string name, Board board)
         {
-            ID = Guid.NewGuid();
+            Id = Guid.NewGuid();
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Board = board ?? throw new ArgumentNullException(nameof(board));
             Order = 0;
