@@ -12,7 +12,7 @@ namespace Application.UseCases.Tasks.ReorderTask
             if (tasks == null || tasks.Count == 0)
                 throw new Exception($"Не удалось найти задачи в колонке с Id {request.ColumnId}");
 
-            var task = tasks.Find(task => task.ID == request.TaskId);
+            var task = tasks.Find(task => task.Id == request.TaskId);
             if (task == null)
                 throw new Exception($"Не удалось найти задачу с Id {request.TaskId}");
 

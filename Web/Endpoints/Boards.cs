@@ -7,8 +7,8 @@ namespace Web.Endpoints
         {
             var group = app.MapGroup("/api/boards"); 
 
-            group.MapGet("/", GetUserBoards);
-            group.MapPost("/", CreateBoard);
+            //group.MapGet("/", GetUserBoards);
+            //group.MapPost("/", CreateBoard);
             group.MapPut("/{id}", UpdateBoard);
             group.MapDelete("/{id}", DeleteBoard);
         }
@@ -23,20 +23,20 @@ namespace Web.Endpoints
             throw new NotImplementedException();
         }
 
-        private static async Task<IResult> GetUserBoards(
-            IBoardRepository repository,
-            ICurrentUserService currentUser,
-            CancellationToken cancellationToken)
-        {
-            var userId = currentUser.UserId;
-            var boards = await repository.GetByUserIdAsync(userId, cancellationToken);
-            return Results.Ok(boards);
-        }
+        //private static async Task<IResult> GetUserBoards(
+        //    IBoardRepository repository,
+        //    ICurrentUserService currentUser,
+        //    CancellationToken cancellationToken)
+        //{
+        //    var userId = currentUser.UserId;
+        //    var boards = await repository.GetByUserIdAsync(userId, cancellationToken);
+        //    return Results.Ok(boards);
+        //}
 
-        private static async Task<IResult> CreateBoard(
-            CreateBoardRequest request,
-            IMediator mediator,
-            CancellationToken cancellationToken)
-        { ... }
+        //private static async Task<IResult> CreateBoard(
+        //    CreateBoardRequest request,
+        //    IMediator mediator,
+        //    CancellationToken cancellationToken)
+        //{ ... }
     }
 }

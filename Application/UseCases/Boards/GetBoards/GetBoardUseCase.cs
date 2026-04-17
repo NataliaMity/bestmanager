@@ -3,7 +3,7 @@ using Domain.Interfaces;
 
 namespace Application.UseCases.Boards.GetBoard
 {
-    public class GetBoardsByBoardUseCase(IBoardRepository boardRepository)
+    public class GetBoardUseCase(IBoardRepository boardRepository)
     {
         private readonly IBoardRepository boardRepository = boardRepository;
 

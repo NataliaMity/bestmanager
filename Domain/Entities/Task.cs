@@ -2,24 +2,23 @@
 {
     public class Task
     {
-        public Guid ID { get; }
+        public Guid Id { get; }
         public string Name { get; private set; }
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
         public Column Column { get; private set; }
         public DateTime Created { get; private set; }
         public DateTime Updated { get; private set; }
         public DateTime Deadline { get; private set; }
         public int Order { get; private set; }
 
-        public Task(string name, string description, Column column, int order) 
+        public Task(string name, string? description, Column column, int order) 
         {
-            ID = Guid.NewGuid();
+            Id = Guid.NewGuid();
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Description = description;
             Column = column ?? throw new ArgumentNullException(nameof(column));
             Created = DateTime.UtcNow;
             Updated = DateTime.UtcNow;
-            Description = string.Empty;
             Order = order;
         }
 
@@ -37,7 +36,7 @@
         {
             if(Description  == newDescription) return;
 
-            Description = newDescription ?? string.Empty;
+            Description = newDescription;
             Updated = DateTime.Now;
         }
 

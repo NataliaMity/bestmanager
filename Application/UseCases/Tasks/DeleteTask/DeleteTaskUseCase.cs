@@ -8,9 +8,8 @@ namespace Application.UseCases.Tasks.DeleteTask
 
         public async Task ExecuteAsync(DeleteTaskRequest request, CancellationToken cancellationToken = default)
         {
-            var task = await taskRepository.GetByIdAsync(request.TaskId);
-            if (task == null)
-                throw new Exception($"Задача с id {request.TaskId} не найдена");
+            var task = await taskRepository.GetByIdAsync(request.TaskId, cancellationToken) 
+                ?? throw new Exception($"Задача с id {request.TaskId} не найдена");
 
             await taskRepository.DeleteAsync(request.TaskId, cancellationToken);
         }
