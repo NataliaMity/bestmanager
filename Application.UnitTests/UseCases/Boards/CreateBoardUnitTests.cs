@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Boards
     public class CreateBoardUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenCalled_ShouldAddBoardAndReturnResponse()
+        public async System.Threading.Tasks.Task Handler_WhenCalled_ShouldAddBoardAndReturnResponse()
         {
             var request = new CreateBoardRequest("BoardName", "BoardDesc");
 
@@ -20,9 +20,9 @@ namespace Application.UnitTests.UseCases.Boards
                 .Callback<Board, CancellationToken>((b, _) => captured = b)
                 .Returns(System.Threading.Tasks.Task.CompletedTask);
 
-            var useCase = new CreateBoardUseCase(mockBoardRepo.Object);
+            var useCase = new CreateBoardHandler(mockBoardRepo.Object);
 
-            var response = await useCase.ExecuteAsync(request);
+            var response = await useCase.Handler(request);
 
             Assert.NotNull(captured);
             Assert.Equal(request.Name, captured!.Name);

@@ -10,9 +10,4 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UseCases\Tasks\UpdateTask\" />
-    <Folder Include="UseCases\Tasks\ReorderTask\" />
-  </ItemGroup>
-
 </Project>

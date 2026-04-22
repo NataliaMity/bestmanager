@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Tasks
     public class UpdateTaskUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenTaskNotFound_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenTaskNotFound_ShouldThrowException()
         {
             var taskId = Guid.NewGuid();
             var request = new UpdateTaskRequest("NewName", "NewDesc", taskId);
@@ -20,13 +20,13 @@ namespace Application.UnitTests.UseCases.Tasks
 
             var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenNameAndDescriptionProvided_ShouldUpdateAndCallUpdateAsync()
+        public async System.Threading.Tasks.Task Handler_WhenNameAndDescriptionProvided_ShouldUpdateAndCallUpdateAsync()
         {
             var board = new Board("Board", "owner");
             var column = new Column("Col", board);
@@ -43,7 +43,7 @@ namespace Application.UnitTests.UseCases.Tasks
 
             var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
             Assert.Equal(newName, task.Name);
             Assert.Equal(newDesc, task.Description);
@@ -53,7 +53,7 @@ namespace Application.UnitTests.UseCases.Tasks
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenOnlyDescriptionProvided_ShouldUpdateAndCallUpdateAsync()
+        public async System.Threading.Tasks.Task Handler_WhenOnlyDescriptionProvided_ShouldUpdateAndCallUpdateAsync()
         {
             var board = new Board("Board", "owner");
             var column = new Column("Col", board);
@@ -69,7 +69,7 @@ namespace Application.UnitTests.UseCases.Tasks
 
             var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
             Assert.Equal(newDesc, task.Description);
 
@@ -78,7 +78,7 @@ namespace Application.UnitTests.UseCases.Tasks
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenOnlyNameProvided_ShouldUpdateAndCallUpdateAsync()
+        public async System.Threading.Tasks.Task Handler_WhenOnlyNameProvided_ShouldUpdateAndCallUpdateAsync()
         {
             var board = new Board("Board", "owner");
             var column = new Column("Col", board);
@@ -94,7 +94,7 @@ namespace Application.UnitTests.UseCases.Tasks
 
             var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
             Assert.Equal(newName, task.Name);
 

@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Columns
     public class ReorderColumnUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenBoardColumnsNull_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenBoardColumnsNull_ShouldThrowException()
         {
             var boardId = Guid.NewGuid();
             var request = new ReorderColumnRequest(Guid.NewGuid(), boardId, 0);
@@ -18,13 +18,13 @@ namespace Application.UnitTests.UseCases.Columns
                 .Setup(r => r.GetByBoardAsync(boardId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((List<Column>?)null);
 
-            var useCase = new ReorderColumnUseCase(mockColumnRepo.Object);
+            var useCase = new ReorderColumnHandler(mockColumnRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnNotFound_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenColumnNotFound_ShouldThrowException()
         {
             var board = new Board("Board", "owner");
             var columns = new List<Column>
@@ -40,13 +40,13 @@ namespace Application.UnitTests.UseCases.Columns
                 .Setup(r => r.GetByBoardAsync(board.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(columns);
 
-            var useCase = new ReorderColumnUseCase(mockColumnRepo.Object);
+            var useCase = new ReorderColumnHandler(mockColumnRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenValidRequest_ShouldReorderColumnsInList()
+        public async System.Threading.Tasks.Task Handler_WhenValidRequest_ShouldReorderColumnsInList()
         {
             var board = new Board("Board", "owner");
             var c1 = new Column("c1", board);
@@ -62,9 +62,9 @@ namespace Application.UnitTests.UseCases.Columns
                 .Setup(r => r.GetByBoardAsync(board.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(columns);
 
-            var useCase = new ReorderColumnUseCase(mockColumnRepo.Object);
+            var useCase = new ReorderColumnHandler(mockColumnRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
             Assert.Equal(c3.Id, columns[1].Id);
             Assert.Contains(columns, x => x.Id == c1.Id);

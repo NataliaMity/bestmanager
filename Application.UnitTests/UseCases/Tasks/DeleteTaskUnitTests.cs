@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Tasks
     public class DeleteTaskUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenTaskExists_ShouldDeleteTask()
+        public async System.Threading.Tasks.Task Handler_WhenTaskExists_ShouldDeleteTask()
         {
             var board = new Board("My Board", "user123");
             var column = new Column("Backlog", board);
@@ -20,29 +20,29 @@ namespace Application.UnitTests.UseCases.Tasks
             mockTaskRepo
                 .Setup(repo => repo.GetByIdAsync(taskId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(task);
-            var useCase = new DeleteTaskUseCase(mockTaskRepo.Object);
+            var useCase = new DeleteTaskHandler(mockTaskRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
             mockTaskRepo.Verify(
-                repo => repo.DeleteAsync(taskId, It.IsAny<CancellationToken>()),
+                repo => repo.RemoveAsync(taskId, It.IsAny<CancellationToken>()),
                 Times.Once);
         }
         
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenTaskDoNotExists_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenTaskDoNotExists_ShouldThrowException()
         {
             var taskId = Guid.NewGuid();
             var request = new DeleteTaskRequest(taskId);
 
             var mockTaskRepo = new Mock<ITaskRepository>();
-            var useCase = new DeleteTaskUseCase(mockTaskRepo.Object);
+            var useCase = new DeleteTaskHandler(mockTaskRepo.Object);
 
             await Assert.ThrowsAsync<Exception>(
-                async () => await useCase.ExecuteAsync(request));
+                async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(
-                repo => repo.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+                repo => repo.RemoveAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
     }

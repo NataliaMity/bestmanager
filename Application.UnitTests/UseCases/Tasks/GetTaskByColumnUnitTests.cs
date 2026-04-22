@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Tasks
     public class GetTaskByColumnUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnNotFound_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenColumnNotFound_ShouldThrowException()
         {
             var columnId = Guid.NewGuid();
             var request = new GetTaskByColumnRequest(columnId);
@@ -18,13 +18,13 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByColumnIdAsync(columnId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((List<Domain.Entities.Task>?)null);
 
-            var useCase = new GetTaskByColumnUseCase(mockTaskRepo.Object);
+            var useCase = new GetTaskByColumnHandler(mockTaskRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenTasksExist_ShouldReturnResponse()
+        public async System.Threading.Tasks.Task Handler_WhenTasksExist_ShouldReturnResponse()
         {
             var board = new Board("Board", "owner");
             var column = new Column("Col", board);
@@ -40,9 +40,9 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByColumnIdAsync(column.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tasks);
 
-            var useCase = new GetTaskByColumnUseCase(mockTaskRepo.Object);
+            var useCase = new GetTaskByColumnHandler(mockTaskRepo.Object);
 
-            var response = await useCase.ExecuteAsync(request);
+            var response = await useCase.Handler(request);
 
             Assert.NotNull(response);
             Assert.Equal(tasks, response.tasks);

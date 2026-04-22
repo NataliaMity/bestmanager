@@ -9,35 +9,35 @@ namespace Application.UnitTests.UseCases.Boards
     public class GetBoardUnitTests
     {
         [Fact]
-        public async Task ExecuteAsync_WhenBoardNotFound_ShouldThrowException()
+        public async Task Handler_WhenBoardNotFound_ShouldThrowException()
         {
             var boardId = Guid.NewGuid();
             var request = new GetBoardRequest(boardId);
 
             var mockBoardRepo = new Mock<IBoardRepository>();
             mockBoardRepo
-                .Setup(r => r.GetByIDAsync(boardId, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(boardId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Board?)null);
 
-            var useCase = new GetBoardUseCase(mockBoardRepo.Object);
+            var useCase = new GetBoardHandler(mockBoardRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
         }
 
         [Fact]
-        public async Task ExecuteAsync_WhenBoardExists_ShouldReturnResponse()
+        public async Task Handler_WhenBoardExists_ShouldReturnResponse()
         {
             var board = new Board("Board", "desc");
             var request = new GetBoardRequest(board.Id);
 
             var mockBoardRepo = new Mock<IBoardRepository>();
             mockBoardRepo
-                .Setup(r => r.GetByIDAsync(board.Id, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(board);
 
-            var useCase = new GetBoardUseCase(mockBoardRepo.Object);
+            var useCase = new GetBoardHandler(mockBoardRepo.Object);
 
-            var response = await useCase.ExecuteAsync(request);
+            var response = await useCase.Handler(request);
 
             Assert.NotNull(response);
             Assert.Equal(board, response.Board);

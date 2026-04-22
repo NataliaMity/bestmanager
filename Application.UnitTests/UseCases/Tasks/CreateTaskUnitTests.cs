@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Tasks
     public class CreateTaskUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnExists_ShouldCreateTaskAndReturnResponse()
+        public async System.Threading.Tasks.Task Handler_WhenColumnExists_ShouldCreateTaskAndReturnResponse()
         {
             var board = new Board("My Board", "user123");
             var column = new Column("Backlog", board);
@@ -24,7 +24,7 @@ namespace Application.UnitTests.UseCases.Tasks
 
             var useCase = new CreateTaskUseCase(mockColumnRepo.Object, mockTaskRepo.Object);
 
-            var response = await useCase.ExecuteAsync(request);
+            var response = await useCase.Handler(request);
 
             mockTaskRepo.Verify(
                 repo => repo.AddAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()),
@@ -34,7 +34,7 @@ namespace Application.UnitTests.UseCases.Tasks
         }
         
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnDoNotExists_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenColumnDoNotExists_ShouldThrowException()
         {
             var columnId = Guid.NewGuid();
             var request = new CreateTaskRequest("Test Task", "Description", columnId, 0);
@@ -48,7 +48,7 @@ namespace Application.UnitTests.UseCases.Tasks
             var useCase = new CreateTaskUseCase(mockColumnRepo.Object, mockTaskRepo.Object);
 
             await Assert.ThrowsAsync<Exception>(
-                async () => await useCase.ExecuteAsync(request));
+                async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(
                 repo => repo.AddAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()),

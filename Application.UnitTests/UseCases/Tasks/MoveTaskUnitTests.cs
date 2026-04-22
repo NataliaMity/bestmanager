@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Tasks
     public class MoveTaskUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenTaskNotFound_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenTaskNotFound_ShouldThrowException()
         {
             var taskId = Guid.NewGuid();
             var request = new MoveTaskRequest(taskId, Guid.NewGuid());
@@ -20,15 +20,15 @@ namespace Application.UnitTests.UseCases.Tasks
 
             var mockColumnRepo = new Mock<IColumnRepository>();
 
-            var useCase = new MoveTaskUseCase(mockTaskRepo.Object, mockColumnRepo.Object);
+            var useCase = new MoveTaskHandler(mockTaskRepo.Object, mockColumnRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnNotFound_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenColumnNotFound_ShouldThrowException()
         {
             var board = new Board("Board", "owner");
             var originalColumn = new Column("ColA", board);
@@ -46,15 +46,15 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByIdAsync(request.ColumnId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Column?)null);
 
-            var useCase = new MoveTaskUseCase(mockTaskRepo.Object, mockColumnRepo.Object);
+            var useCase = new MoveTaskHandler(mockTaskRepo.Object, mockColumnRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenValidRequest_ShouldMoveTaskAndCallUpdate()
+        public async System.Threading.Tasks.Task Handler_WhenValidRequest_ShouldMoveTaskAndCallUpdate()
         {
             var board = new Board("Board", "owner");
             var originalColumn = new Column("ColA", board);
@@ -73,9 +73,9 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByIdAsync(targetColumn.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(targetColumn);
 
-            var useCase = new MoveTaskUseCase(mockTaskRepo.Object, mockColumnRepo.Object);
+            var useCase = new MoveTaskHandler(mockTaskRepo.Object, mockColumnRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
             Assert.Equal(targetColumn.Id, task.Column.Id);
 

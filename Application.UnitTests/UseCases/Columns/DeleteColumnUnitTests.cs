@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Columns
     public class DeleteColumnUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnNotFound_ShouldThrowExceptionAndNotCallDelete()
+        public async System.Threading.Tasks.Task Handler_WhenColumnNotFound_ShouldThrowExceptionAndNotCallDelete()
         {
             var columnId = Guid.NewGuid();
             var request = new DeleteColumnRequest(columnId);
@@ -18,15 +18,15 @@ namespace Application.UnitTests.UseCases.Columns
                 .Setup(r => r.GetByIdAsync(columnId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Column?)null);
 
-            var useCase = new DeleteColumnUseCase(mockColumnRepo.Object);
+            var useCase = new DeleteColumnHandler(mockColumnRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
 
-            mockColumnRepo.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+            mockColumnRepo.Verify(r => r.RemoveAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnExists_ShouldCallDeleteOnce()
+        public async System.Threading.Tasks.Task Handler_WhenColumnExists_ShouldCallDeleteOnce()
         {
             var board = new Board("Board", "owner");
             var column = new Column("Col", board);
@@ -37,11 +37,11 @@ namespace Application.UnitTests.UseCases.Columns
                 .Setup(r => r.GetByIdAsync(column.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(column);
 
-            var useCase = new DeleteColumnUseCase(mockColumnRepo.Object);
+            var useCase = new DeleteColumnHandler(mockColumnRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
-            mockColumnRepo.Verify(r => r.DeleteAsync(column.Id, It.IsAny<CancellationToken>()), Times.Once);
+            mockColumnRepo.Verify(r => r.RemoveAsync(column.Id, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

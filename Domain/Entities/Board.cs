@@ -12,21 +12,23 @@
         {
             Id = Guid.NewGuid();
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Description = description ?? throw new ArgumentNullException(nameof(description));
-            Created = DateTime.Now;
-            Updated = DateTime.Now;
+            Description = description ?? string.Empty;
+            Created = DateTime.UtcNow;
+            Updated = DateTime.UtcNow;
         }
 
-        public void UpdateName(string newName)
+        public void Rename(string newName)
         {
             if (string.IsNullOrWhiteSpace(newName))
-                throw new ArgumentException("Название задачи не может быть пустым");
+                throw new ArgumentException("Название доски не может быть пустым");
             Name = newName;
+            Updated = DateTime.UtcNow;
         }
 
-        public void UpdateDescription(string newDescription)
+        public void ChangeDescription(string newDescription)
         {
             Description = newDescription ?? string.Empty;
+            Updated = DateTime.UtcNow;
         }
     }
 }

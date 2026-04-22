@@ -1,13 +1,13 @@
 ﻿using Domain.Entities;
+using Task = System.Threading.Tasks.Task;
 
 namespace Domain.Interfaces
 {
     public interface IBoardRepository
     {
-        Task<Board?> GetByIDAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<Board?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-        System.Threading.Tasks.Task AddAsync(Board board, CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task UpdateAsync(Guid id, CancellationToken cancellationToken = default);
+        Task AddAsync(Board board, CancellationToken cancellationToken = default);
+        Task RemoveAsync(Board board, CancellationToken cancellationToken = default);
     }
 }

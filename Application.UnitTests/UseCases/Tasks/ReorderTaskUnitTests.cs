@@ -8,7 +8,7 @@ namespace Application.UnitTests.UseCases.Tasks
     public class ReorderTaskUnitTests
     {
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnIsNullFromRepository_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenColumnIsNullFromRepository_ShouldThrowException()
         {
             var columnId = Guid.NewGuid();
             var request = new ReorderTaskRequest(Guid.NewGuid(), columnId, 0);
@@ -18,15 +18,15 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByColumnIdAsync(columnId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((List<Domain.Entities.Task>?)null);
 
-            var useCase = new ReorderTaskUseCase(mockTaskRepo.Object);
+            var useCase = new ReorderTaskHandler(mockTaskRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenColumnHasNoTasks_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenColumnHasNoTasks_ShouldThrowException()
         {
             var columnId = Guid.NewGuid();
             var request = new ReorderTaskRequest(Guid.NewGuid(), columnId, 0);
@@ -36,15 +36,15 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByColumnIdAsync(columnId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Domain.Entities.Task>());
 
-            var useCase = new ReorderTaskUseCase(mockTaskRepo.Object);
+            var useCase = new ReorderTaskHandler(mockTaskRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenTaskNotFoundInColumn_ShouldThrowException()
+        public async System.Threading.Tasks.Task Handler_WhenTaskNotFoundInColumn_ShouldThrowException()
         {
             var board = new Board("Board", "owner");
             var column = new Column("Col", board);
@@ -63,15 +63,15 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByColumnIdAsync(column.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tasks);
 
-            var useCase = new ReorderTaskUseCase(mockTaskRepo.Object);
+            var useCase = new ReorderTaskHandler(mockTaskRepo.Object);
 
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.ExecuteAsync(request));
+            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
 
             mockTaskRepo.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ExecuteAsync_WhenValidRequest_ShouldMoveTaskToRequestedIndex()
+        public async System.Threading.Tasks.Task Handler_WhenValidRequest_ShouldMoveTaskToRequestedIndex()
         {
             var board = new Board("Board", "owner");
             var column = new Column("Col", board);
@@ -90,9 +90,9 @@ namespace Application.UnitTests.UseCases.Tasks
                 .Setup(r => r.GetByColumnIdAsync(column.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tasks);
 
-            var useCase = new ReorderTaskUseCase(mockTaskRepo.Object);
+            var useCase = new ReorderTaskHandler(mockTaskRepo.Object);
 
-            await useCase.ExecuteAsync(request);
+            await useCase.Handler(request);
 
             // After reorder, tasks should contain t3 at index 1
             Assert.Equal(t3.Id, tasks[1].Id);
