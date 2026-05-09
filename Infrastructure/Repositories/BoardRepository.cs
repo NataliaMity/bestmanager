@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -14,7 +15,7 @@ namespace Infrastructure.Repositories
 
         public async Task<Domain.Entities.Board?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _context.Boards.FindAsync(new object[] { id }, cancellationToken);
+            return await _context.Boards.FindAsync([id], cancellationToken);
         }
 
         public Task AddAsync(Domain.Entities.Board board, CancellationToken cancellationToken = default)
@@ -27,6 +28,12 @@ namespace Infrastructure.Repositories
         {
             _context.Boards.Remove(board);
             return _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<List<Domain.Entities.Board>?> GetAsync(CancellationToken cancellationToken = default)
+        {
+            var boards = await _context.Boards.ToListAsync(cancellationToken);
+            return boards.Count != 0 ? boards : null;
         }
     }
 }

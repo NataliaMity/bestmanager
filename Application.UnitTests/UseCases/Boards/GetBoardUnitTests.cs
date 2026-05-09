@@ -19,7 +19,7 @@ namespace Application.UnitTests.UseCases.Boards
                 .Setup(r => r.GetByIdAsync(boardId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Board?)null);
 
-            var useCase = new GetBoardHandler(mockBoardRepo.Object);
+            var useCase = new GetBoardsHandler(mockBoardRepo.Object);
 
             await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
         }
@@ -35,7 +35,7 @@ namespace Application.UnitTests.UseCases.Boards
                 .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(board);
 
-            var useCase = new GetBoardHandler(mockBoardRepo.Object);
+            var useCase = new GetBoardsHandler(mockBoardRepo.Object);
 
             var response = await useCase.Handler(request);
 

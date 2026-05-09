@@ -4,7 +4,7 @@ namespace Application.UseCases.Boards.UpdateBoard
 {
     public class UpdateBoardHandler(IBoardRepository boardRepository, IUnitOfWork unitOfWork)
     {
-        public record UpdateBoardCommand(string? Name, string? Description, Guid BoardId);
+        public record UpdateBoardCommand(Guid BoardId, string? Name, string? Description);
         private readonly IBoardRepository _boardRepository = boardRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
