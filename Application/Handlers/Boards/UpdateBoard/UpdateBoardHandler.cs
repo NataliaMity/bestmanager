@@ -1,6 +1,6 @@
 ﻿using Domain.Interfaces;
 
-namespace Application.UseCases.Boards.UpdateBoard
+namespace Application.Handlers.Boards.UpdateBoard
 {
     public class UpdateBoardHandler(IBoardRepository boardRepository, IUnitOfWork unitOfWork)
     {

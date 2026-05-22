@@ -1,4 +1,4 @@
-﻿using Application.UseCases.Boards.CreateBoard;
+﻿using Application.Handlers.Boards.CreateBoard;
 using Domain.Entities;
 using Domain.Interfaces;
 using Moq;

@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
 
-namespace Application.UseCases.Boards.CreateBoard
+namespace Application.Handlers.Boards.CreateBoard
 {
     public class CreateBoardHandler(IBoardRepository boardRepository)
     {

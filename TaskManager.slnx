@@ -1,7 +1,7 @@
 <Solution>
   <Project Path="Application.UnitTests/Application.UnitTests.csproj" />
-  <Project Path="D:/Work/repos/TaskManager/Application/Application.csproj" Id="35e2bfae-5485-4222-860e-c203fd178397" />
-  <Project Path="D:/Work/repos/TaskManager/Domain/Domain.csproj" />
-  <Project Path="D:/Work/repos/TaskManager/Infrastructure/Infrastructure.csproj" Id="1f7498e0-37e9-406f-b0dc-a68c261b5a24" />
+  <Project Path="Application/Application.csproj" />
+  <Project Path="Domain/Domain.csproj" />
+  <Project Path="Infrastructure/Infrastructure.csproj" />
   <Project Path="Web/Web.csproj" />
 </Solution>

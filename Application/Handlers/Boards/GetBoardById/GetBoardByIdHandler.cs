@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
 
-namespace Application.UseCases.Boards.GetBoardById
+namespace Application.Handlers.Boards.GetBoardById
 {
     public class GetBoardByIdHandler(IBoardRepository boardRepository)
     {

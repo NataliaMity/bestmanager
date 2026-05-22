@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
 
-namespace Application.UseCases.Boards.GetBoard
+namespace Application.Handlers.Boards.GetBoard
 {
     public class GetBoardsHandler(IBoardRepository boardRepository)
     {

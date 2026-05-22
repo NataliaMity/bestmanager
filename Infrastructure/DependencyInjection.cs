@@ -1,8 +1,8 @@
-﻿using Application.UseCases.Tasks;
-using Application.UseCases.Tasks.CreateTask;
-using Application.UseCases.Tasks.DeleteTask;
-using Application.UseCases.Tasks.MoveTask;
-using Application.UseCases.Tasks.UpdateTask;
+﻿using Application.Handlers.Tasks;
+using Application.Handlers.Tasks.CreateTask;
+using Application.Handlers.Tasks.DeleteTask;
+using Application.Handlers.Tasks.MoveTask;
+using Application.Handlers.Tasks.UpdateTask;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repositories;

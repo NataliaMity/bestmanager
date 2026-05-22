@@ -1,8 +1,13 @@
-using Application.UseCases.Boards.CreateBoard;
-using Application.UseCases.Boards.DeleteBoard;
-using Application.UseCases.Boards.GetBoard;
-using Application.UseCases.Boards.GetBoardById;
-using Application.UseCases.Boards.UpdateBoard;
+using Application.Handlers.Boards.CreateBoard;
+using Application.Handlers.Boards.DeleteBoard;
+using Application.Handlers.Boards.GetBoard;
+using Application.Handlers.Boards.GetBoardById;
+using Application.Handlers.Boards.UpdateBoard;
+using Application.UseCases.Columns.CreateColumn;
+using Application.UseCases.Columns.DeleteColumn;
+using Application.UseCases.Columns.GetColumnsByBoard;
+using Application.UseCases.Columns.ReorderColumn;
+using Application.UseCases.Columns.UpdateColumn;
 using Domain.Interfaces;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -15,6 +20,11 @@ builder.Services.AddScoped<GetBoardsHandler>();
 builder.Services.AddScoped<GetBoardByIdHandler>();
 builder.Services.AddScoped<DeleteBoardHandler>();
 builder.Services.AddScoped<UpdateBoardHandler>();
+builder.Services.AddScoped<CreateColumnHandler>();
+builder.Services.AddScoped<UpdateColumnHandler>();
+builder.Services.AddScoped<DeleteColumnHandler>();
+builder.Services.AddScoped<GetColumnsByBoardHandler>();
+builder.Services.AddScoped<ReorderColumnHandler>();
 
 builder.Services.AddOpenApi();
 

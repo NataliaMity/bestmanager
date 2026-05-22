@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="UseCases\Tasks\MoveTaskUnitTests.cs" />
+    <None Include="Handlers\Tasks\MoveTaskUnitTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

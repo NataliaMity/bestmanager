@@ -1,6 +1,6 @@
 ﻿using Domain.Interfaces;
 
-namespace Application.UseCases.Boards.DeleteBoard
+namespace Application.Handlers.Boards.DeleteBoard
 {
     public class DeleteBoardHandler(IBoardRepository boardRepository)
     {

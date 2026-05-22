@@ -1,8 +1,8 @@
-﻿using Application.UseCases.Boards.CreateBoard;
-using Application.UseCases.Boards.DeleteBoard;
-using Application.UseCases.Boards.GetBoard;
-using Application.UseCases.Boards.GetBoardById;
-using Application.UseCases.Boards.UpdateBoard;
+﻿using Application.Handlers.Boards.CreateBoard;
+using Application.Handlers.Boards.DeleteBoard;
+using Application.Handlers.Boards.GetBoard;
+using Application.Handlers.Boards.GetBoardById;
+using Application.Handlers.Boards.UpdateBoard;
 
 namespace Web.Endpoints
 {
