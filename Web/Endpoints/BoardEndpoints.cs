@@ -13,10 +13,10 @@ namespace Web.Endpoints
             var group = app.MapGroup("/api/boards");
 
             group.MapGet("/", GetBoards);
-            group.MapGet("/{id}", GetBoard);
+            group.MapGet("/get/{id}", GetBoard);
             group.MapPost("/", CreateBoard);
-            group.MapPut("/{id}", UpdateBoard);
-            group.MapDelete("/{id}", DeleteBoard);
+            group.MapPut("/update/{id}", UpdateBoard);
+            group.MapDelete("/delete/{id}", DeleteBoard);
         }
 
         private static async Task<IResult> DeleteBoard(

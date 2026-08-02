@@ -8,6 +8,12 @@ using Application.UseCases.Columns.DeleteColumn;
 using Application.UseCases.Columns.GetColumnsByBoard;
 using Application.UseCases.Columns.ReorderColumn;
 using Application.UseCases.Columns.UpdateColumn;
+using Application.UseCases.Tasks.CreateTask;
+using Application.UseCases.Tasks.DeleteTask;
+using Application.UseCases.Tasks.GetTasksByColumn;
+using Application.UseCases.Tasks.MoveTask;
+using Application.UseCases.Tasks.ReorderTask;
+using Application.UseCases.Tasks.UpdateTask;
 using Domain.Interfaces;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -25,6 +31,12 @@ builder.Services.AddScoped<UpdateColumnHandler>();
 builder.Services.AddScoped<DeleteColumnHandler>();
 builder.Services.AddScoped<GetColumnsByBoardHandler>();
 builder.Services.AddScoped<ReorderColumnHandler>();
+builder.Services.AddScoped<CreateTaskHandler>();
+builder.Services.AddScoped<DeleteTaskHandler>();
+builder.Services.AddScoped<MoveTaskHandler>();
+builder.Services.AddScoped<ReorderTaskHandler>();
+builder.Services.AddScoped<UpdateTaskHandler>();
+builder.Services.AddScoped<GetTaskByColumnHandler>();
 
 builder.Services.AddOpenApi();
 

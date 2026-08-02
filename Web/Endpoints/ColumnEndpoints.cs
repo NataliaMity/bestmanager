@@ -14,9 +14,9 @@ namespace Web.Endpoints
 
             group.MapGet("/{boardId}", GetColumnsByBoardId);
             group.MapPost("/", CreateColumn);
-            group.MapPut("/{id}", UpdateColumn);
-            group.MapDelete("/{id}", DeleteColumn);
-            group.MapDelete("/{id}", ReorderColumn);
+            group.MapPut("/update/{id}", UpdateColumn);
+            group.MapDelete("/delete/{id}", DeleteColumn);
+            group.MapPut("/reorder/{id}", ReorderColumn);
         }
 
         private static async Task<IResult> ReorderColumn(
