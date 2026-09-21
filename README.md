@@ -13,14 +13,6 @@
 | `Infrastructure` | EF Core + PostgreSQL, репозитории, UnitOfWork | Domain |
 | `Web` | Minimal API эндпоинты, обработка ошибок, DI | Application, Infrastructure |
 
-Правила:
-
-- **Агрегаты.** `Board` — отдельный агрегат. `Column` — корень агрегата «колонка + задачи»: задачи создаются, переставляются, переносятся и удаляются только через методы колонки. Так порядок (`Order`) всегда остаётся 0..N-1.
-- **Сохранение.** Репозитории только отслеживают изменения (`Add`/`Remove`), сохраняет хендлер через `IUnitOfWork.SaveChangesAsync`.
-- **Ошибки.** Нарушение бизнес-правила — `DomainException` → 400; нет сущности — `NotFoundException` → 404. Ответ в формате ProblemDetails.
-- **Наружу — только DTO**, доменные сущности из Application не выходят.
-- **Новый хендлер** регистрируется в DI автоматически (любой public-класс `*Handler` в сборке Application).
-
 ## Запуск
 
 1. Строка подключения — `Web/appsettings.Development.json` (`ConnectionStrings:DefaultConnection`) или user-secrets.
