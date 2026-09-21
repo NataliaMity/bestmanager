@@ -1,85 +1,32 @@
-﻿using Application.UseCases.Boards.UpdateBoard;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
-using Task = System.Threading.Tasks.Task;
+using Application.Common;
+using Application.Handlers.Boards.UpdateBoard;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Boards
+namespace Application.UnitTests.Handlers.Boards
 {
     public class UpdateBoardUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private UpdateBoardHandler Handler => new(_store.BoardRepository, _store.UnitOfWork);
+
         [Fact]
-        public async Task Handler_WhenBoardNotFound_ShouldThrowExceptionAndNotCallUpdate()
+        public async Task Handle_OnlyName_ChangesNameKeepsDescription()
         {
-            var boardId = Guid.NewGuid();
-            var request = new UpdateBoardRequest("NewName", boardId);
+            var board = _store.AddBoard("Старое");
+            board.ChangeDescription("Описание");
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(boardId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Board?)null);
+            await Handler.Handle(new UpdateBoardHandler.UpdateBoardCommand(board.Id, "Новое", null));
 
-            var useCase = new UpdateBoardHandler(mockBoardRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
-
-            mockBoardRepo.Verify(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+            Assert.Equal("Новое", board.Name);
+            Assert.Equal("Описание", board.Description);
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
         }
 
         [Fact]
-        public async Task Handler_WhenNameProvided_ShouldUpdateNameAndCallUpdateAsync()
+        public async Task Handle_UnknownBoard_ThrowsNotFound()
         {
-            var board = new Board("OldName", "desc");
-            var request = new UpdateBoardRequest("NewName", board.Id);
-
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(board);
-
-            var useCase = new UpdateBoardHandler(mockBoardRepo.Object);
-
-            await useCase.Handler(request);
-
-            Assert.Equal("NewName", board.Name);
-            mockBoardRepo.Verify(r => r.UpdateAsync(board.Id, It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Handler_WhenNameNull_ShouldCallUpdateAsyncWithoutChangingName()
-        {
-            var board = new Board("OldName", "desc");
-            var request = new UpdateBoardRequest(null, board.Id);
-
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(board);
-
-            var useCase = new UpdateBoardHandler(mockBoardRepo.Object);
-
-            await useCase.Handler(request);
-
-            Assert.Equal("OldName", board.Name);
-            mockBoardRepo.Verify(r => r.UpdateAsync(board.Id, It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Handler_WhenNameEmptyString_ShouldThrowExceptionAndNotCallUpdate()
-        {
-            var board = new Board("OldName", "desc");
-            var request = new UpdateBoardRequest("", board.Id);
-
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(board);
-
-            var useCase = new UpdateBoardHandler(mockBoardRepo.Object);
-
-            await Assert.ThrowsAsync<ArgumentException>(async () => await useCase.Handler(request));
-
-            mockBoardRepo.Verify(r => r.UpdateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => Handler.Handle(new UpdateBoardHandler.UpdateBoardCommand(Guid.NewGuid(), "Имя", null)));
         }
     }
 }

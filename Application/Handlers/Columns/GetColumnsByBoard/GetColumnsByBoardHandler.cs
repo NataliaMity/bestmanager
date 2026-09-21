@@ -1,18 +1,19 @@
-﻿using Domain.Entities;
+using Application.Common;
 using Domain.Interfaces;
 
-namespace Application.UseCases.Columns.GetColumnsByBoard
+namespace Application.Handlers.Columns.GetColumnsByBoard
 {
-    public class GetColumnsByBoardHandler(IColumnRepository columnRepository)
+    public class GetColumnsByBoardHandler(IBoardRepository boardRepository, IColumnRepository columnRepository)
     {
-        public record GetColumnsByBoardCommand(Guid BoardId);
-        private readonly IColumnRepository columnRepository = columnRepository;
+        public record GetColumnsByBoardQuery(Guid BoardId);
 
-        public async Task<List<Column>> Handle(GetColumnsByBoardCommand command, CancellationToken cancellationToken = default)
+        public async Task<List<ColumnDto>> Handle(GetColumnsByBoardQuery query, CancellationToken cancellationToken = default)
         {
-            var columns = await columnRepository.GetByBoardAsync(command.BoardId, cancellationToken);
-            
-            return columns ?? throw new InvalidOperationException($"Доска с id {command.BoardId} не найдена");
+            _ = await boardRepository.GetByIdAsync(query.BoardId, cancellationToken)
+                ?? throw new NotFoundException("Доска", query.BoardId);
+
+            var columns = await columnRepository.GetByBoardAsync(query.BoardId, cancellationToken: cancellationToken);
+            return columns.Select(ColumnDto.From).ToList();
         }
     }
 }

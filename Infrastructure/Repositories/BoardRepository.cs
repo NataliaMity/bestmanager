@@ -1,39 +1,24 @@
-﻿using Domain.Interfaces;
+using Domain.Entities;
+using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class BoardRepository : IBoardRepository
+    internal class BoardRepository(ApplicationDbContext context) : IBoardRepository
     {
-        private readonly ApplicationDbContext _context;
+        public Task<Board?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+            context.Boards.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
-        public BoardRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public Task<List<Board>> GetAllAsync(CancellationToken cancellationToken = default) =>
+            context.Boards
+                .AsNoTracking()
+                .OrderBy(b => b.Created)
+                .ToListAsync(cancellationToken);
 
-        public async Task<Domain.Entities.Board?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await _context.Boards.FindAsync([id], cancellationToken);
-        }
+        public void Add(Board board) => context.Boards.Add(board);
 
-        public Task AddAsync(Domain.Entities.Board board, CancellationToken cancellationToken = default)
-        {
-            _context.Boards.Add(board);
-            return _context.SaveChangesAsync(cancellationToken);
-        }
-
-        public Task RemoveAsync(Domain.Entities.Board board, CancellationToken cancellationToken = default)
-        {
-            _context.Boards.Remove(board);
-            return _context.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task<List<Domain.Entities.Board>?> GetAsync(CancellationToken cancellationToken = default)
-        {
-            var boards = await _context.Boards.ToListAsync(cancellationToken);
-            return boards.Count != 0 ? boards : null;
-        }
+        // Колонки и задачи удалятся каскадно в БД
+        public void Remove(Board board) => context.Boards.Remove(board);
     }
 }

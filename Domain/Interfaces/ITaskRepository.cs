@@ -1,12 +1,15 @@
-﻿
+using Domain.Entities;
+
 namespace Domain.Interfaces
 {
+    /// <summary>
+    /// Только чтение. Задачи изменяются через агрегат <see cref="Column"/> (<see cref="IColumnRepository"/>).
+    /// </summary>
     public interface ITaskRepository
     {
-        Task<Entities.Task?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<List<Entities.Task>?> GetByColumnIdAsync(Guid columnId, CancellationToken cancellationToken = default);
+        Task<TaskItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Task AddAsync(Entities.Task task, CancellationToken cancellationToken = default);
-        Task RemoveAsync(Entities.Task task, CancellationToken cancellationToken = default);
+        /// <summary>Задачи колонки, отсортированные по порядку.</summary>
+        Task<List<TaskItem>> GetByColumnAsync(Guid columnId, CancellationToken cancellationToken = default);
     }
 }

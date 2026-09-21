@@ -1,47 +1,32 @@
-﻿using Application.UseCases.Boards.DeleteBoard;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
-using Task = System.Threading.Tasks.Task;
+using Application.Common;
+using Application.Handlers.Boards.DeleteBoard;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Boards
+namespace Application.UnitTests.Handlers.Boards
 {
     public class DeleteBoardUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private DeleteBoardHandler Handler => new(_store.BoardRepository, _store.UnitOfWork);
+
         [Fact]
-        public async Task Handler_WhenBoardNotFound_ShouldThrowExceptionAndNotCallDelete()
+        public async Task Handle_ExistingBoard_RemovesAndSaves()
         {
-            var boardId = Guid.NewGuid();
-            var request = new DeleteBoardRequest(boardId);
+            var board = _store.AddBoard();
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(boardId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Board?)null);
+            await Handler.Handle(new DeleteBoardHandler.DeleteBoardCommand(board.Id));
 
-            var useCase = new DeleteBoardHandler(mockBoardRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
-
-            mockBoardRepo.Verify(r => r.RemoveAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+            Assert.Empty(_store.Boards);
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
         }
 
         [Fact]
-        public async Task Handler_WhenBoardExists_ShouldCallDeleteOnce()
+        public async Task Handle_UnknownBoard_ThrowsNotFound()
         {
-            var board = new Board("Board", "desc");
-            var request = new DeleteBoardRequest(board.Id);
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => Handler.Handle(new DeleteBoardHandler.DeleteBoardCommand(Guid.NewGuid())));
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(board);
-
-            var useCase = new DeleteBoardHandler(mockBoardRepo.Object);
-
-            await useCase.Handler(request);
-
-            mockBoardRepo.Verify(r => r.RemoveAsync(board.Id, It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(0, _store.UnitOfWork.SaveCount);
         }
     }
 }

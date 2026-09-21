@@ -1,7 +1,12 @@
 <Solution>
-  <Project Path="Application.UnitTests/Application.UnitTests.csproj" />
-  <Project Path="Application/Application.csproj" />
-  <Project Path="Domain/Domain.csproj" />
-  <Project Path="Infrastructure/Infrastructure.csproj" />
-  <Project Path="Web/Web.csproj" />
+  <Folder Name="/src/">
+    <Project Path="Domain/Domain.csproj" />
+    <Project Path="Application/Application.csproj" />
+    <Project Path="Infrastructure/Infrastructure.csproj" />
+    <Project Path="Web/Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="Domain.UnitTests/Domain.UnitTests.csproj" />
+    <Project Path="Application.UnitTests/Application.UnitTests.csproj" />
+  </Folder>
 </Solution>

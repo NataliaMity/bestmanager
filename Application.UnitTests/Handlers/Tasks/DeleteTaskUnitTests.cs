@@ -1,49 +1,34 @@
-﻿using Application.UseCases.Tasks.DeleteTask;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
+using Application.Common;
+using Application.Handlers.Tasks.DeleteTask;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Tasks
+namespace Application.UnitTests.Handlers.Tasks
 {
     public class DeleteTaskUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private DeleteTaskHandler Handler => new(_store.ColumnRepository, _store.UnitOfWork);
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenTaskExists_ShouldDeleteTask()
+        public async Task Handle_RemovesTaskAndRenumbersRest()
         {
-            var board = new Board("My Board", "user123");
-            var column = new Column("Backlog", board);
-            var taskId = Guid.NewGuid();
-            var task = new Domain.Entities.Task("Test", "Desc", column, 0);
-            var request = new DeleteTaskRequest(taskId);
+            var column = _store.AddColumn(_store.AddBoard());
+            var a = column.AddTask("A", null);
+            var b = column.AddTask("B", null);
+            var c = column.AddTask("C", null);
 
-            var mockTaskRepo = new Mock<ITaskRepository>();
-            mockTaskRepo
-                .Setup(repo => repo.GetByIdAsync(taskId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(task);
-            var useCase = new DeleteTaskHandler(mockTaskRepo.Object);
+            await Handler.Handle(new DeleteTaskHandler.DeleteTaskCommand(b.Id));
 
-            await useCase.Handler(request);
-
-            mockTaskRepo.Verify(
-                repo => repo.RemoveAsync(taskId, It.IsAny<CancellationToken>()),
-                Times.Once);
+            Assert.Equal(new[] { a, c }, column.Tasks);
+            Assert.Equal((0, 1), (a.Order, c.Order));
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
         }
-        
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenTaskDoNotExists_ShouldThrowException()
+        public async Task Handle_UnknownTask_ThrowsNotFound()
         {
-            var taskId = Guid.NewGuid();
-            var request = new DeleteTaskRequest(taskId);
-
-            var mockTaskRepo = new Mock<ITaskRepository>();
-            var useCase = new DeleteTaskHandler(mockTaskRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(
-                async () => await useCase.Handler(request));
-
-            mockTaskRepo.Verify(
-                repo => repo.RemoveAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => Handler.Handle(new DeleteTaskHandler.DeleteTaskCommand(Guid.NewGuid())));
         }
     }
 }

@@ -1,46 +1,58 @@
-﻿using Application.UseCases.Boards.GetBoard;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
-using Task = System.Threading.Tasks.Task;
+using Application.Common;
+using Application.Handlers.Boards.GetBoardById;
+using Application.Handlers.Boards.GetBoards;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Boards
+namespace Application.UnitTests.Handlers.Boards
 {
     public class GetBoardUnitTests
     {
+        private readonly InMemoryStore _store = new();
+
         [Fact]
-        public async Task Handler_WhenBoardNotFound_ShouldThrowException()
+        public async Task GetBoards_NoBoards_ReturnsEmptyList()
         {
-            var boardId = Guid.NewGuid();
-            var request = new GetBoardRequest(boardId);
+            var boards = await new GetBoardsHandler(_store.BoardRepository).Handle();
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(boardId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Board?)null);
-
-            var useCase = new GetBoardsHandler(mockBoardRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
+            Assert.Empty(boards);
         }
 
         [Fact]
-        public async Task Handler_WhenBoardExists_ShouldReturnResponse()
+        public async Task GetBoards_ReturnsAllBoards()
         {
-            var board = new Board("Board", "desc");
-            var request = new GetBoardRequest(board.Id);
+            _store.AddBoard("A");
+            _store.AddBoard("B");
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(board);
+            var boards = await new GetBoardsHandler(_store.BoardRepository).Handle();
 
-            var useCase = new GetBoardsHandler(mockBoardRepo.Object);
+            Assert.Equal(new[] { "A", "B" }, boards.Select(b => b.Name));
+        }
 
-            var response = await useCase.Handler(request);
+        [Fact]
+        public async Task GetBoardById_ReturnsColumnsAndTasksInOrder()
+        {
+            var board = _store.AddBoard();
+            var todo = _store.AddColumn(board, "To do");
+            var done = _store.AddColumn(board, "Done");
+            todo.AddTask("Первая", null);
+            todo.AddTask("Вторая", null);
 
-            Assert.NotNull(response);
-            Assert.Equal(board, response.Board);
+            var handler = new GetBoardByIdHandler(_store.BoardRepository, _store.ColumnRepository);
+            var result = await handler.Handle(new GetBoardByIdHandler.GetBoardByIdQuery(board.Id));
+
+            Assert.Equal(board.Id, result.Id);
+            Assert.Equal(new[] { "To do", "Done" }, result.Columns.Select(c => c.Name));
+            Assert.Equal(new[] { "Первая", "Вторая" }, result.Columns[0].Tasks.Select(t => t.Name));
+            Assert.Empty(result.Columns[1].Tasks);
+        }
+
+        [Fact]
+        public async Task GetBoardById_UnknownBoard_ThrowsNotFound()
+        {
+            var handler = new GetBoardByIdHandler(_store.BoardRepository, _store.ColumnRepository);
+
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => handler.Handle(new GetBoardByIdHandler.GetBoardByIdQuery(Guid.NewGuid())));
         }
     }
 }

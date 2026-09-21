@@ -1,8 +1,3 @@
-﻿using Application.Handlers.Tasks;
-using Application.Handlers.Tasks.CreateTask;
-using Application.Handlers.Tasks.DeleteTask;
-using Application.Handlers.Tasks.MoveTask;
-using Application.Handlers.Tasks.UpdateTask;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -14,25 +9,17 @@ namespace Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services,
+                                                           IConfiguration configuration)
         {
-            services.AddScoped<CreateTaskUseCase>();
-            services.AddScoped<UpdateTaskHandler>();
-            services.AddScoped<DeleteTaskHandler>();
-            services.AddScoped<MoveTaskHandler>();
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Не задана строка подключения ConnectionStrings:DefaultConnection");
 
-            return services;
-        }
+            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
-        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
-                                                                    IConfiguration configuration)
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IBoardRepository, BoardRepository>();
             services.AddScoped<IColumnRepository, ColumnRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;

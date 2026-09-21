@@ -1,16 +1,14 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using Task = Domain.Entities.Task;
-
 
 namespace Infrastructure.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        public DbSet<Column> Columns => Set<Column>();
-        public DbSet<Task> Tasks => Set<Task>();
         public DbSet<Board> Boards => Set<Board>();
+        public DbSet<Column> Columns => Set<Column>();
+        public DbSet<TaskItem> Tasks => Set<TaskItem>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

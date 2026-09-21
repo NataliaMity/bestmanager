@@ -1,6 +1,80 @@
 @Web_HostAddress = http://localhost:5124
 
-GET {{Web_HostAddress}}/weatherforecast/
-Accept: application/json
+### Создать доску
+# @name createBoard
+POST {{Web_HostAddress}}/api/boards
+Content-Type: application/json
+
+{
+  "name": "Моя доска",
+  "description": "Тестовая"
+}
 
 ###
+@boardId = {{createBoard.response.body.$.id}}
+
+### Список досок
+GET {{Web_HostAddress}}/api/boards
+
+### Создать колонки
+# @name todo
+POST {{Web_HostAddress}}/api/columns
+Content-Type: application/json
+
+{ "boardId": "{{boardId}}", "name": "To do" }
+
+###
+# @name done
+POST {{Web_HostAddress}}/api/columns
+Content-Type: application/json
+
+{ "boardId": "{{boardId}}", "name": "Done" }
+
+###
+@todoId = {{todo.response.body.$.id}}
+@doneId = {{done.response.body.$.id}}
+
+### Колонки доски
+GET {{Web_HostAddress}}/api/columns/{{boardId}}
+
+### Создать задачу
+# @name createTask
+POST {{Web_HostAddress}}/api/tasks
+Content-Type: application/json
+
+{
+  "columnId": "{{todoId}}",
+  "name": "Написать README",
+  "description": "Описать, как запустить проект",
+  "deadline": "2030-01-01T00:00:00Z"
+}
+
+###
+@taskId = {{createTask.response.body.$.id}}
+
+### Изменить задачу
+PUT {{Web_HostAddress}}/api/tasks/update/{{taskId}}
+Content-Type: application/json
+
+{ "name": "Написать хороший README" }
+
+### Перенести задачу в Done (в начало)
+PUT {{Web_HostAddress}}/api/tasks/move/{{taskId}}
+Content-Type: application/json
+
+{ "columnId": "{{doneId}}", "index": 0 }
+
+### Задачи колонки
+GET {{Web_HostAddress}}/api/tasks/{{doneId}}
+
+### Поставить Done первой колонкой
+PUT {{Web_HostAddress}}/api/columns/reorder/{{doneId}}
+Content-Type: application/json
+
+{ "index": 0 }
+
+### Доска целиком (колонки + задачи)
+GET {{Web_HostAddress}}/api/boards/get/{{boardId}}
+
+### Удалить доску (колонки и задачи удалятся каскадно)
+DELETE {{Web_HostAddress}}/api/boards/delete/{{boardId}}

@@ -1,23 +1,22 @@
-﻿using Domain.Interfaces;
+using Application.Common;
+using Domain.Interfaces;
 
-namespace Application.UseCases.Columns.UpdateColumn
+namespace Application.Handlers.Columns.UpdateColumn
 {
     public class UpdateColumnHandler(IColumnRepository columnRepository, IUnitOfWork unitOfWork)
     {
-        public record UpdateColumnCommand(string? Name, Guid ColumnId);
-
-        private readonly IColumnRepository columnRepository = columnRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        /// <summary>null в поле — не менять его.</summary>
+        public record UpdateColumnCommand(Guid ColumnId, string? Name);
 
         public async Task Handle(UpdateColumnCommand command, CancellationToken cancellationToken = default)
         {
-            var column = await columnRepository.GetByIdAsync(command.ColumnId, cancellationToken) 
-                ?? throw new Exception($"Не удалось найти задачу с Id {command.ColumnId}");
+            var column = await columnRepository.GetByIdAsync(command.ColumnId, cancellationToken)
+                ?? throw new NotFoundException("Колонка", command.ColumnId);
 
             if (command.Name is not null)
                 column.Rename(command.Name);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

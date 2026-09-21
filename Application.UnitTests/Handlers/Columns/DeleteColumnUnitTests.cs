@@ -1,47 +1,35 @@
-﻿using Application.UseCases.Columns.DeleteColumn;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
+using Application.Common;
+using Application.Handlers.Columns.DeleteColumn;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Columns
+namespace Application.UnitTests.Handlers.Columns
 {
     public class DeleteColumnUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private DeleteColumnHandler Handler => new(_store.ColumnRepository, _store.UnitOfWork);
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenColumnNotFound_ShouldThrowExceptionAndNotCallDelete()
+        public async Task Handle_RemovesColumnAndRenumbersRest()
         {
-            var columnId = Guid.NewGuid();
-            var request = new DeleteColumnRequest(columnId);
+            var board = _store.AddBoard();
+            var a = _store.AddColumn(board, "A");
+            var b = _store.AddColumn(board, "B");
+            var c = _store.AddColumn(board, "C");
 
-            var mockColumnRepo = new Mock<IColumnRepository>();
-            mockColumnRepo
-                .Setup(r => r.GetByIdAsync(columnId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Column?)null);
+            await Handler.Handle(new DeleteColumnHandler.DeleteColumnCommand(b.Id));
 
-            var useCase = new DeleteColumnHandler(mockColumnRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
-
-            mockColumnRepo.Verify(r => r.RemoveAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+            Assert.DoesNotContain(b, _store.Columns);
+            Assert.Equal(0, a.Order);
+            Assert.Equal(1, c.Order);
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenColumnExists_ShouldCallDeleteOnce()
+        public async Task Handle_UnknownColumn_ThrowsNotFound()
         {
-            var board = new Board("Board", "owner");
-            var column = new Column("Col", board);
-            var request = new DeleteColumnRequest(column.Id);
-
-            var mockColumnRepo = new Mock<IColumnRepository>();
-            mockColumnRepo
-                .Setup(r => r.GetByIdAsync(column.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(column);
-
-            var useCase = new DeleteColumnHandler(mockColumnRepo.Object);
-
-            await useCase.Handler(request);
-
-            mockColumnRepo.Verify(r => r.RemoveAsync(column.Id, It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => Handler.Handle(new DeleteColumnHandler.DeleteColumnCommand(Guid.NewGuid())));
         }
     }
 }

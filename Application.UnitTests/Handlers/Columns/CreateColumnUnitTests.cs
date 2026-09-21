@@ -1,62 +1,36 @@
-﻿using Application.UseCases.Columns.CreateColumn;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
+using Application.Common;
+using Application.Handlers.Columns.CreateColumn;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Columns
+namespace Application.UnitTests.Handlers.Columns
 {
     public class CreateColumnUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private CreateColumnHandler Handler => new(_store.BoardRepository, _store.ColumnRepository, _store.UnitOfWork);
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenBoardNotFound_ShouldThrowExceptionAndNotAddColumn()
+        public async Task Handle_AddsColumnToEndOfBoard()
         {
-            var boardId = Guid.NewGuid();
-            var request = new CreateColumnRequest(boardId, "New Column");
+            var board = _store.AddBoard();
+            _store.AddColumn(board, "To do");
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(boardId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Board?)null);
-            
-            var mockColumnRepo = new Mock<IColumnRepository>();
+            var id = await Handler.Handle(new CreateColumnHandler.CreateColumnCommand(board.Id, "Done"));
 
-            var useCase = new CreateColumnHandler(mockColumnRepo.Object, mockBoardRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
-
-            mockColumnRepo.Verify(r => r.AddAsync(It.IsAny<Column>(), It.IsAny<CancellationToken>()), Times.Never);
+            var column = _store.Columns.Single(c => c.Id == id);
+            Assert.Equal(board.Id, column.BoardId);
+            Assert.Equal("Done", column.Name);
+            Assert.Equal(1, column.Order);
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenBoardExists_ShouldAddColumnAndReturnResponse()
+        public async Task Handle_UnknownBoard_ThrowsNotFound()
         {
-            var board = new Board("Board", "owner");
-            var request = new CreateColumnRequest(board.Id, "New Column");
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => Handler.Handle(new CreateColumnHandler.CreateColumnCommand(Guid.NewGuid(), "Колонка")));
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
-            mockBoardRepo
-                .Setup(r => r.GetByIdAsync(board.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(board);
-
-            var mockColumnRepo = new Mock<IColumnRepository>();
-
-            Column? captured = null;
-            mockColumnRepo
-                .Setup(r => r.AddAsync(It.IsAny<Column>(), It.IsAny<CancellationToken>()))
-                .Callback<Column, CancellationToken>((c, _) => captured = c)
-                .Returns(System.Threading.Tasks.Task.CompletedTask);
-
-            var useCase = new CreateColumnHandler(mockColumnRepo.Object, mockBoardRepo.Object);
-
-            var response = await useCase.Handler(request);
-
-            Assert.NotNull(captured);
-            Assert.Equal(request.Name, captured!.Name);
-            Assert.Equal(request.BoardId, captured.Board.Id);
-
-            Assert.Equal(captured.Id, response.ColumnId);
-
-            mockColumnRepo.Verify(r => r.AddAsync(It.IsAny<Column>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Empty(_store.Columns);
         }
     }
 }

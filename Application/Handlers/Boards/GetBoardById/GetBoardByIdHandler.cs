@@ -1,19 +1,20 @@
-﻿using Domain.Entities;
+using Application.Common;
 using Domain.Interfaces;
 
 namespace Application.Handlers.Boards.GetBoardById
 {
-    public class GetBoardByIdHandler(IBoardRepository boardRepository)
+    public class GetBoardByIdHandler(IBoardRepository boardRepository, IColumnRepository columnRepository)
     {
-        public record GetBoardByIdCommand(Guid BoardId);
+        public record GetBoardByIdQuery(Guid BoardId);
 
-        private readonly IBoardRepository _boardRepository = boardRepository;
-
-        public async Task<Board?> Handle(GetBoardByIdCommand command, CancellationToken cancellationToken = default)
+        public async Task<BoardDetailsDto> Handle(GetBoardByIdQuery query, CancellationToken cancellationToken = default)
         {
-            var board = await _boardRepository.GetByIdAsync(command.BoardId, cancellationToken);
+            var board = await boardRepository.GetByIdAsync(query.BoardId, cancellationToken)
+                ?? throw new NotFoundException("Доска", query.BoardId);
 
-            return board ?? throw new InvalidOperationException("Доска не найдена");
+            var columns = await columnRepository.GetByBoardAsync(board.Id, includeTasks: true, cancellationToken);
+
+            return BoardDetailsDto.From(board, columns);
         }
     }
 }

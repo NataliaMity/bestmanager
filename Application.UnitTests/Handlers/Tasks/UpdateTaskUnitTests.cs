@@ -1,105 +1,43 @@
-﻿using Application.UseCases.Tasks.UpdateTask;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
+using Application.Common;
+using Application.Handlers.Tasks.UpdateTask;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Tasks
+namespace Application.UnitTests.Handlers.Tasks
 {
     public class UpdateTaskUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private UpdateTaskHandler Handler => new(_store.ColumnRepository, _store.UnitOfWork);
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenTaskNotFound_ShouldThrowException()
+        public async Task Handle_UpdatesOnlyPassedFields()
         {
-            var taskId = Guid.NewGuid();
-            var request = new UpdateTaskRequest("NewName", "NewDesc", taskId);
+            var column = _store.AddColumn(_store.AddBoard());
+            var task = column.AddTask("Старое", "Описание");
 
-            var mockTaskRepo = new Mock<ITaskRepository>();
-            mockTaskRepo
-                .Setup(r => r.GetByIdAsync(taskId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Domain.Entities.Task?)null);
+            await Handler.Handle(new UpdateTaskHandler.UpdateTaskCommand(task.Id, "Новое", null, null));
 
-            var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(async () => await useCase.Handler(request));
-
-            mockTaskRepo.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()), Times.Never);
+            Assert.Equal("Новое", task.Name);
+            Assert.Equal("Описание", task.Description);
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenNameAndDescriptionProvided_ShouldUpdateAndCallUpdateAsync()
+        public async Task Handle_RemoveDeadline_ClearsDeadline()
         {
-            var board = new Board("Board", "owner");
-            var column = new Column("Col", board);
-            var task = new Domain.Entities.Task("OldName", "OldDesc", column, 0);
+            var column = _store.AddColumn(_store.AddBoard());
+            var task = column.AddTask("Задача", null, DateTime.UtcNow.AddDays(1));
 
-            var newName = "NewName";
-            var newDesc = "NewDesc";
-            var request = new UpdateTaskRequest(newName, newDesc, task.Id);
+            await Handler.Handle(new UpdateTaskHandler.UpdateTaskCommand(task.Id, null, null, null, RemoveDeadline: true));
 
-            var mockTaskRepo = new Mock<ITaskRepository>();
-            mockTaskRepo
-                .Setup(r => r.GetByIdAsync(task.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(task);
-
-            var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
-
-            await useCase.Handler(request);
-
-            Assert.Equal(newName, task.Name);
-            Assert.Equal(newDesc, task.Description);
-
-            mockTaskRepo.Verify(r => r.UpdateAsync(It.Is<Domain.Entities.Task>(t => t.Id == task.Id && t.Name == newName 
-                && t.Description == newDesc), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Null(task.Deadline);
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenOnlyDescriptionProvided_ShouldUpdateAndCallUpdateAsync()
+        public async Task Handle_UnknownTask_ThrowsNotFound()
         {
-            var board = new Board("Board", "owner");
-            var column = new Column("Col", board);
-            var task = new Domain.Entities.Task("OldName", "OldDesc", column, 0);
-
-            var newDesc = "NewDesc";
-            var request = new UpdateTaskRequest(null, newDesc, task.Id);
-
-            var mockTaskRepo = new Mock<ITaskRepository>();
-            mockTaskRepo
-                .Setup(r => r.GetByIdAsync(task.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(task);
-
-            var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
-
-            await useCase.Handler(request);
-
-            Assert.Equal(newDesc, task.Description);
-
-            mockTaskRepo.Verify(r => r.UpdateAsync(It.Is<Domain.Entities.Task>(t => t.Id == task.Id && t.Description == newDesc), 
-                It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenOnlyNameProvided_ShouldUpdateAndCallUpdateAsync()
-        {
-            var board = new Board("Board", "owner");
-            var column = new Column("Col", board);
-            var task = new Domain.Entities.Task("OldName", "OldDesc", column, 0);
-
-            var newName = "NewName";
-            var request = new UpdateTaskRequest(newName, null, task.Id);
-
-            var mockTaskRepo = new Mock<ITaskRepository>();
-            mockTaskRepo
-                .Setup(r => r.GetByIdAsync(task.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(task);
-
-            var useCase = new UpdateTaskUseCase(mockTaskRepo.Object);
-
-            await useCase.Handler(request);
-
-            Assert.Equal(newName, task.Name);
-
-            mockTaskRepo.Verify(r => r.UpdateAsync(It.Is<Domain.Entities.Task>(t => t.Id == task.Id && t.Name == newName), 
-                It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => Handler.Handle(new UpdateTaskHandler.UpdateTaskCommand(Guid.NewGuid(), "Имя", null, null)));
         }
     }
 }

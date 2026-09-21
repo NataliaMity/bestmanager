@@ -1,37 +1,22 @@
-﻿using Domain.Interfaces;
+using Domain.Entities;
+using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class TaskRepository : ITaskRepository
+    internal class TaskRepository(ApplicationDbContext context) : ITaskRepository
     {
-        private readonly ApplicationDbContext _context;
+        public Task<TaskItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+            context.Tasks
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
-        public TaskRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public Task AddAsync(Domain.Entities.Task task, CancellationToken cancellationToken = default)
-        {
-            _context.Add(task);
-            return _context.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task<Domain.Entities.Task?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await _context.Tasks.FindAsync([id], cancellationToken);
-        }
-
-        public async Task<List<Domain.Entities.Task?>> GetByColumnIdAsync(Guid columnId, CancellationToken cancellationToken = default)
-        {
-            return _context.Tasks.Where(t => t.ColumnId == columnId).ToList();
-        }
-
-        public Task RemoveAsync(Domain.Entities.Task task, CancellationToken cancellationToken = default)
-        {
-            _context.Tasks.Remove(task);
-            return _context.SaveChangesAsync(cancellationToken);
-        }
+        public Task<List<TaskItem>> GetByColumnAsync(Guid columnId, CancellationToken cancellationToken = default) =>
+            context.Tasks
+                .AsNoTracking()
+                .Where(t => t.ColumnId == columnId)
+                .OrderBy(t => t.Order)
+                .ToListAsync(cancellationToken);
     }
 }

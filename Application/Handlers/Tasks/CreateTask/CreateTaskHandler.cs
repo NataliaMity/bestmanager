@@ -1,33 +1,22 @@
-﻿using Domain.Interfaces;
-using Task = Domain.Entities.Task;
+using Application.Common;
+using Domain.Interfaces;
 
-namespace Application.UseCases.Tasks.CreateTask
+namespace Application.Handlers.Tasks.CreateTask
 {
-    public class CreateTaskHandler
+    public class CreateTaskHandler(IColumnRepository columnRepository, IUnitOfWork unitOfWork)
     {
-        public record CreateTaskCommand(string Name, string Description, Guid ColumnId, int Order);
+        public record CreateTaskCommand(Guid ColumnId, string Name, string? Description, DateTime? Deadline);
 
-        public record CreateTaskResult(Guid Id, string Name, Guid ColumnId);
-
-        private readonly IColumnRepository _columnRepository;
-        private readonly ITaskRepository _taskRepository;
-
-        public CreateTaskHandler(IColumnRepository columnRepository, ITaskRepository taskRepository)
+        public async Task<Guid> Handle(CreateTaskCommand command, CancellationToken cancellationToken = default)
         {
-            _columnRepository = columnRepository;
-            _taskRepository = taskRepository;
-        }
+            var column = await columnRepository.GetByIdAsync(command.ColumnId, cancellationToken)
+                ?? throw new NotFoundException("Колонка", command.ColumnId);
 
-        public async Task<CreateTaskResult> Handle(CreateTaskCommand command, CancellationToken ct = default)
-        {
-            var column = await _columnRepository.GetByIdAsync(command.ColumnId, ct)
-                ?? throw new InvalidOperationException($"Column {command.ColumnId} not found");
+            var task = column.AddTask(command.Name, command.Description, command.Deadline);
 
-            var task = new Task(command.Name, command.Description, column, command.Order);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await _taskRepository.AddAsync(task, ct);
-
-            return new CreateTaskResult(task.Id, task.Name, task.ColumnId);
+            return task.Id;
         }
     }
 }
