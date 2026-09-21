@@ -1,30 +1,26 @@
-﻿using Domain.Interfaces;
+using Application.Common;
+using Domain.Interfaces;
 
-namespace Application.UseCases.Tasks.MoveTask
+namespace Application.Handlers.Tasks.MoveTask
 {
-    public class MoveTaskHandler(ITaskRepository taskRepository,
-                                    IColumnRepository columnRepository,
-                                    IUnitOfWork unitOfWork)
+    public class MoveTaskHandler(IColumnRepository columnRepository, IUnitOfWork unitOfWork)
     {
-        public record MoveTaskCommand(Guid TaskId, Guid ColumnId);
-
-        private readonly ITaskRepository taskRepository = taskRepository;
-        private readonly IColumnRepository columnRepository = columnRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        /// <param name="Index">Позиция в целевой колонке (с 0); null — в конец.</param>
+        public record MoveTaskCommand(Guid TaskId, Guid ColumnId, int? Index);
 
         public async Task Handle(MoveTaskCommand command, CancellationToken cancellationToken = default)
         {
-            var task = await taskRepository.GetByIdAsync(command.TaskId, cancellationToken);
-            if (task == null)
-                throw new InvalidOperationException($"Не удалось найти задачу с Id {command.TaskId}");
+            var source = await columnRepository.GetByTaskIdAsync(command.TaskId, cancellationToken)
+                ?? throw new NotFoundException("Задача", command.TaskId);
 
-            var column = await columnRepository.GetByIdAsync(command.ColumnId, cancellationToken);
-            if (column == null)
-                throw new InvalidOperationException($"Не удалось найти колонку с Id {command.ColumnId}");
+            var target = source.Id == command.ColumnId
+                ? source
+                : await columnRepository.GetByIdAsync(command.ColumnId, cancellationToken)
+                    ?? throw new NotFoundException("Колонка", command.ColumnId);
 
-            task.SetColumn(column, 0);
-            
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            source.MoveTaskTo(command.TaskId, target, command.Index);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

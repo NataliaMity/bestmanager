@@ -1,17 +1,13 @@
-﻿using Domain.Entities;
 using Domain.Interfaces;
 
-namespace Application.Handlers.Boards.GetBoard
+namespace Application.Handlers.Boards.GetBoards
 {
     public class GetBoardsHandler(IBoardRepository boardRepository)
     {
-        private readonly IBoardRepository _boardRepository = boardRepository;
-
-        public async Task<List<Board>?> Handle(CancellationToken cancellationToken = default)
+        public async Task<List<BoardDto>> Handle(CancellationToken cancellationToken = default)
         {
-            var boards = await _boardRepository.GetAsync(cancellationToken);
-            
-            return boards ?? throw new InvalidOperationException("Доски не найдены");
+            var boards = await boardRepository.GetAllAsync(cancellationToken);
+            return boards.Select(BoardDto.From).ToList();
         }
     }
 }

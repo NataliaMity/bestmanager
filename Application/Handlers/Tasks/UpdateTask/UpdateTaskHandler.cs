@@ -1,19 +1,23 @@
-﻿using Domain.Interfaces;
+using Application.Common;
+using Domain.Interfaces;
 
-namespace Application.UseCases.Tasks.UpdateTask
+namespace Application.Handlers.Tasks.UpdateTask
 {
-    public class UpdateTaskHandler(ITaskRepository taskRepository, IUnitOfWork unitOfWork)
+    public class UpdateTaskHandler(IColumnRepository columnRepository, IUnitOfWork unitOfWork)
     {
-        public record UpdateTaskCommand(string? Name, string? Description, Guid TaskId);
-
-        private readonly ITaskRepository _taskRepository = taskRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        /// <summary>null в поле — не менять его. Чтобы снять дедлайн, передайте RemoveDeadline = true.</summary>
+        public record UpdateTaskCommand(
+            Guid TaskId,
+            string? Name,
+            string? Description,
+            DateTime? Deadline,
+            bool RemoveDeadline = false);
 
         public async Task Handle(UpdateTaskCommand command, CancellationToken cancellationToken = default)
         {
-            var task = await _taskRepository.GetByIdAsync(command.TaskId, cancellationToken);
-            if(task == null)
-                throw new InvalidOperationException($"Не удалось найти задачу с Id {command.TaskId}");
+            var column = await columnRepository.GetByTaskIdAsync(command.TaskId, cancellationToken)
+                ?? throw new NotFoundException("Задача", command.TaskId);
+            var task = column.GetTask(command.TaskId);
 
             if (command.Name is not null)
                 task.Rename(command.Name);
@@ -21,7 +25,12 @@ namespace Application.UseCases.Tasks.UpdateTask
             if (command.Description is not null)
                 task.ChangeDescription(command.Description);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            if (command.RemoveDeadline)
+                task.SetDeadline(null);
+            else if (command.Deadline is not null)
+                task.SetDeadline(command.Deadline);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

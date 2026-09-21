@@ -1,26 +1,23 @@
-﻿using Domain.Entities;
+using Application.Common;
+using Domain.Entities;
 using Domain.Interfaces;
-using Task = System.Threading.Tasks.Task;
 
-namespace Application.UseCases.Columns.ReorderColumn
+namespace Application.Handlers.Columns.ReorderColumn
 {
-    public class ReorderColumnHandler(IColumnRepository columnRepository)
+    public class ReorderColumnHandler(IColumnRepository columnRepository, IUnitOfWork unitOfWork)
     {
-        public record ReorderColumnCommand(Guid BoardId, Guid ColumnId, int Index);
-        private readonly IColumnRepository columnRepository = columnRepository;
+        /// <param name="Index">Новая позиция колонки на доске (с 0).</param>
+        public record ReorderColumnCommand(Guid ColumnId, int Index);
 
-        public async Task Handle(ReorderColumnCommand request, CancellationToken cancellationToken = default)
+        public async Task Handle(ReorderColumnCommand command, CancellationToken cancellationToken = default)
         {
-            List<Column>? columns = await columnRepository.GetByBoardAsync(request.BoardId, cancellationToken);
-            if (columns == null || columns.Count == 0)
-                throw new Exception($"Не удалось найти доску с Id {request.BoardId}");
+            var column = await columnRepository.GetByIdAsync(command.ColumnId, cancellationToken)
+                ?? throw new NotFoundException("Колонка", command.ColumnId);
 
-            var column = columns.Find(column => column.Id == request.ColumnId);
-            if (column == null)
-                throw new Exception($"Не удалось найти колонку с Id {request.ColumnId}");
+            var boardColumns = await columnRepository.GetByBoardAsync(column.BoardId, cancellationToken: cancellationToken);
+            Column.Reorder(boardColumns, column.Id, command.Index);
 
-            columns.Remove(column);
-            columns.Insert(request.Index, column);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

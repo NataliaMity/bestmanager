@@ -1,19 +1,20 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Application.Handlers.Boards.CreateBoard
 {
-    public class CreateBoardHandler(IBoardRepository boardRepository)
+    public class CreateBoardHandler(IBoardRepository boardRepository, IUnitOfWork unitOfWork)
     {
-        public record CreateBoardCommand(string Name, string Description);
-        private readonly IBoardRepository _boardRepository = boardRepository;
+        public record CreateBoardCommand(string Name, string? Description);
 
         public async Task<Guid> Handle(CreateBoardCommand command, CancellationToken cancellationToken = default)
         {
             var board = new Board(command.Name, command.Description);
-            await _boardRepository.AddAsync(board, cancellationToken);
 
-            return board.Id; 
+            boardRepository.Add(board);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return board.Id;
         }
     }
 }

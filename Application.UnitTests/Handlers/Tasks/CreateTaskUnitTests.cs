@@ -1,58 +1,37 @@
-﻿using Application.UseCases.Tasks.CreateTask;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
+using Application.Common;
+using Application.Handlers.Tasks.CreateTask;
+using Application.UnitTests.Fakes;
 
-namespace Application.UnitTests.UseCases.Tasks
+namespace Application.UnitTests.Handlers.Tasks
 {
     public class CreateTaskUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private CreateTaskHandler Handler => new(_store.ColumnRepository, _store.UnitOfWork);
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenColumnExists_ShouldCreateTaskAndReturnResponse()
+        public async Task Handle_AddsTaskToEndOfColumn()
         {
-            var board = new Board("My Board", "user123");
-            var column = new Column("Backlog", board);
+            var column = _store.AddColumn(_store.AddBoard());
+            column.AddTask("Первая", null);
+            var deadline = DateTime.UtcNow.AddDays(1);
 
-            var request = new CreateTaskRequest("Test Task", "Description", column.Id, 0);
+            var id = await Handler.Handle(new CreateTaskHandler.CreateTaskCommand(column.Id, "Вторая", "Описание", deadline));
 
-            var mockColumnRepo = new Mock<IColumnRepository>();
-            mockColumnRepo
-                .Setup(repo => repo.GetByIdAsync(column.Id, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(column);
-
-            var mockTaskRepo = new Mock<ITaskRepository>();
-
-            var useCase = new CreateTaskUseCase(mockColumnRepo.Object, mockTaskRepo.Object);
-
-            var response = await useCase.Handler(request);
-
-            mockTaskRepo.Verify(
-                repo => repo.AddAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()),
-                Times.Once);
-
-            Assert.Equal("Test Task", response.TaskName);
+            var task = column.GetTask(id);
+            Assert.Equal("Вторая", task.Name);
+            Assert.Equal("Описание", task.Description);
+            Assert.Equal(deadline, task.Deadline);
+            Assert.Equal(column.Id, task.ColumnId);
+            Assert.Equal(1, task.Order);
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
         }
-        
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenColumnDoNotExists_ShouldThrowException()
+        public async Task Handle_UnknownColumn_ThrowsNotFound()
         {
-            var columnId = Guid.NewGuid();
-            var request = new CreateTaskRequest("Test Task", "Description", columnId, 0);
-
-            var mockColumnRepo = new Mock<IColumnRepository>();
-            mockColumnRepo
-                .Setup(repo => repo.GetByIdAsync(columnId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Column?)null);
-
-            var mockTaskRepo = new Mock<ITaskRepository>();
-            var useCase = new CreateTaskUseCase(mockColumnRepo.Object, mockTaskRepo.Object);
-
-            await Assert.ThrowsAsync<Exception>(
-                async () => await useCase.Handler(request));
-
-            mockTaskRepo.Verify(
-                repo => repo.AddAsync(It.IsAny<Domain.Entities.Task>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            await Assert.ThrowsAsync<NotFoundException>(
+                () => Handler.Handle(new CreateTaskHandler.CreateTaskCommand(Guid.NewGuid(), "Задача", null, null)));
         }
     }
 }

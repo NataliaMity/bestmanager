@@ -1,19 +1,20 @@
-﻿using Domain.Interfaces;
+using Application.Common;
+using Domain.Interfaces;
 
-namespace Application.UseCases.Tasks.DeleteTask
+namespace Application.Handlers.Tasks.DeleteTask
 {
-    public class DeleteTaskHandler(ITaskRepository taskRepository)
+    public class DeleteTaskHandler(IColumnRepository columnRepository, IUnitOfWork unitOfWork)
     {
         public record DeleteTaskCommand(Guid TaskId);
 
-        private readonly ITaskRepository taskRepository = taskRepository;
-
         public async Task Handle(DeleteTaskCommand command, CancellationToken cancellationToken = default)
         {
-            var task = await taskRepository.GetByIdAsync(command.TaskId, cancellationToken) 
-                ?? throw new InvalidOperationException($"Задача с id {command.TaskId} не найдена");
+            var column = await columnRepository.GetByTaskIdAsync(command.TaskId, cancellationToken)
+                ?? throw new NotFoundException("Задача", command.TaskId);
 
-            await taskRepository.RemoveAsync(task, cancellationToken);
+            column.RemoveTask(command.TaskId);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

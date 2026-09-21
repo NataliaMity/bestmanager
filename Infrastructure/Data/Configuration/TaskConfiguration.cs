@@ -1,28 +1,34 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Task = Domain.Entities.Task;
 
 namespace Infrastructure.Data.Configuration
 {
-    public class TaskConfiguration : IEntityTypeConfiguration<Task>
+    public class TaskConfiguration : IEntityTypeConfiguration<TaskItem>
     {
-        public void Configure(EntityTypeBuilder<Task> builder)
+        public void Configure(EntityTypeBuilder<TaskItem> builder)
         {
+            builder.ToTable("Tasks");
+
             builder.HasKey(t => t.Id);
+            builder.Property(t => t.Id).ValueGeneratedNever();
+
             builder.Property(t => t.Name)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(TaskItem.NameMaxLength);
             builder.Property(t => t.Description)
-                .HasMaxLength(500);
+                .IsRequired()
+                .HasMaxLength(TaskItem.DescriptionMaxLength);
+            builder.Property(t => t.Order)
+                .IsRequired();
             builder.Property(t => t.Created)
                 .IsRequired();
             builder.Property(t => t.Updated)
                 .IsRequired();
 
-            builder.HasOne(t => t.Column)
-            .WithMany()
-            .HasForeignKey(t => t.ColumnId)
-            .OnDelete(DeleteBehavior.Cascade);
+            // Связь с колонкой настроена в ColumnConfiguration
+
+            builder.HasIndex(t => new { t.ColumnId, t.Order });
         }
     }
 }

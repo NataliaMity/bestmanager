@@ -1,20 +1,25 @@
-﻿using Domain.Interfaces;
+using Application.Common;
+using Domain.Entities;
+using Domain.Interfaces;
 
-namespace Application.UseCases.Columns.DeleteColumn
+namespace Application.Handlers.Columns.DeleteColumn
 {
-    public class DeleteColumnHandler(IColumnRepository columnRepository)
+    public class DeleteColumnHandler(IColumnRepository columnRepository, IUnitOfWork unitOfWork)
     {
         public record DeleteColumnCommand(Guid ColumnId);
 
-        private readonly IColumnRepository _columnRepository = columnRepository;
-
         public async Task Handle(DeleteColumnCommand command, CancellationToken cancellationToken = default)
         {
-            var column = await _columnRepository.GetByIdAsync(command.ColumnId, cancellationToken);
-            if (column == null)
-                throw new InvalidOperationException($"Колонка с id {command.ColumnId} не найдена");
+            var column = await columnRepository.GetByIdAsync(command.ColumnId, cancellationToken)
+                ?? throw new NotFoundException("Колонка", command.ColumnId);
 
-            await _columnRepository.RemoveAsync(column, cancellationToken);
+            columnRepository.Remove(column);
+
+            // Закрываем «дыру» в порядке оставшихся колонок
+            var boardColumns = await columnRepository.GetByBoardAsync(column.BoardId, cancellationToken: cancellationToken);
+            Column.RenumberColumns(boardColumns.Where(c => c.Id != column.Id));
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

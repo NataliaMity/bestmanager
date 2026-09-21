@@ -1,35 +1,34 @@
-﻿using Application.Handlers.Boards.CreateBoard;
-using Domain.Entities;
-using Domain.Interfaces;
-using Moq;
+using Application.Handlers.Boards.CreateBoard;
+using Application.UnitTests.Fakes;
+using Domain.Exceptions;
 
-namespace Application.UnitTests.UseCases.Boards
+namespace Application.UnitTests.Handlers.Boards
 {
     public class CreateBoardUnitTests
     {
+        private readonly InMemoryStore _store = new();
+        private CreateBoardHandler Handler => new(_store.BoardRepository, _store.UnitOfWork);
+
         [Fact]
-        public async System.Threading.Tasks.Task Handler_WhenCalled_ShouldAddBoardAndReturnResponse()
+        public async Task Handle_ValidCommand_AddsBoardAndSaves()
         {
-            var request = new CreateBoardRequest("BoardName", "BoardDesc");
+            var id = await Handler.Handle(new CreateBoardHandler.CreateBoardCommand("Доска", "Описание"));
 
-            var mockBoardRepo = new Mock<IBoardRepository>();
+            var board = Assert.Single(_store.Boards);
+            Assert.Equal(id, board.Id);
+            Assert.Equal("Доска", board.Name);
+            Assert.Equal("Описание", board.Description);
+            Assert.Equal(1, _store.UnitOfWork.SaveCount);
+        }
 
-            Board? captured = null;
-            mockBoardRepo
-                .Setup(r => r.AddAsync(It.IsAny<Board>(), It.IsAny<CancellationToken>()))
-                .Callback<Board, CancellationToken>((b, _) => captured = b)
-                .Returns(System.Threading.Tasks.Task.CompletedTask);
+        [Fact]
+        public async Task Handle_EmptyName_ThrowsDomainException()
+        {
+            await Assert.ThrowsAsync<DomainException>(
+                () => Handler.Handle(new CreateBoardHandler.CreateBoardCommand("  ", null)));
 
-            var useCase = new CreateBoardHandler(mockBoardRepo.Object);
-
-            var response = await useCase.Handler(request);
-
-            Assert.NotNull(captured);
-            Assert.Equal(request.Name, captured!.Name);
-            Assert.Equal(request.Description, captured.Description);
-            Assert.Equal(captured.Id, response.BoardId);
-
-            mockBoardRepo.Verify(r => r.AddAsync(It.IsAny<Board>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Empty(_store.Boards);
+            Assert.Equal(0, _store.UnitOfWork.SaveCount);
         }
     }
 }

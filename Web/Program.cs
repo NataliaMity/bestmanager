@@ -1,49 +1,22 @@
-using Application.Handlers.Boards.CreateBoard;
-using Application.Handlers.Boards.DeleteBoard;
-using Application.Handlers.Boards.GetBoard;
-using Application.Handlers.Boards.GetBoardById;
-using Application.Handlers.Boards.UpdateBoard;
-using Application.UseCases.Columns.CreateColumn;
-using Application.UseCases.Columns.DeleteColumn;
-using Application.UseCases.Columns.GetColumnsByBoard;
-using Application.UseCases.Columns.ReorderColumn;
-using Application.UseCases.Columns.UpdateColumn;
-using Application.UseCases.Tasks.CreateTask;
-using Application.UseCases.Tasks.DeleteTask;
-using Application.UseCases.Tasks.GetTasksByColumn;
-using Application.UseCases.Tasks.MoveTask;
-using Application.UseCases.Tasks.ReorderTask;
-using Application.UseCases.Tasks.UpdateTask;
-using Domain.Interfaces;
+using Application;
 using Infrastructure;
-using Infrastructure.Repositories;
+using Web.Endpoints;
+using Web.ErrorHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IBoardRepository, BoardRepository>();
-builder.Services.AddScoped<CreateBoardHandler>();
-builder.Services.AddScoped<GetBoardsHandler>();
-builder.Services.AddScoped<GetBoardByIdHandler>();
-builder.Services.AddScoped<DeleteBoardHandler>();
-builder.Services.AddScoped<UpdateBoardHandler>();
-builder.Services.AddScoped<CreateColumnHandler>();
-builder.Services.AddScoped<UpdateColumnHandler>();
-builder.Services.AddScoped<DeleteColumnHandler>();
-builder.Services.AddScoped<GetColumnsByBoardHandler>();
-builder.Services.AddScoped<ReorderColumnHandler>();
-builder.Services.AddScoped<CreateTaskHandler>();
-builder.Services.AddScoped<DeleteTaskHandler>();
-builder.Services.AddScoped<MoveTaskHandler>();
-builder.Services.AddScoped<ReorderTaskHandler>();
-builder.Services.AddScoped<UpdateTaskHandler>();
-builder.Services.AddScoped<GetTaskByColumnHandler>();
+// Все *Handler из Application регистрируются автоматически — руками добавлять не нужно
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddOpenApi();
 
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddControllers();
-
 var app = builder.Build();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
@@ -51,5 +24,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapBoardEndpoints();
+app.MapColumnEndpoints();
+app.MapTaskEndpoints();
 
 app.Run();

@@ -1,13 +1,19 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 
 namespace Domain.Interfaces
 {
     public interface IColumnRepository
     {
+        /// <summary>Колонка вместе с задачами (весь агрегат).</summary>
         Task<Column?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<List<Column>?> GetByBoardAsync(Guid boardId, CancellationToken cancellationToken = default);
 
-        System.Threading.Tasks.Task AddAsync(Column column, CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task RemoveAsync(Column column, CancellationToken cancellationToken = default);
+        /// <summary>Колонка, в которой лежит задача, вместе со всеми её задачами.</summary>
+        Task<Column?> GetByTaskIdAsync(Guid taskId, CancellationToken cancellationToken = default);
+
+        /// <summary>Колонки доски, отсортированные по порядку.</summary>
+        Task<List<Column>> GetByBoardAsync(Guid boardId, bool includeTasks = false, CancellationToken cancellationToken = default);
+
+        void Add(Column column);
+        void Remove(Column column);
     }
 }

@@ -1,26 +1,28 @@
-﻿using Domain.Entities;
+using Application.Common;
+using Domain.Entities;
 using Domain.Interfaces;
 
-namespace Application.UseCases.Columns.CreateColumn
+namespace Application.Handlers.Columns.CreateColumn
 {
-    public class CreateColumnHandler(IColumnRepository columnRepository,
-                                     IBoardRepository boardRepository)
+    public class CreateColumnHandler(IBoardRepository boardRepository,
+                                     IColumnRepository columnRepository,
+                                     IUnitOfWork unitOfWork)
     {
         public record CreateColumnCommand(Guid BoardId, string Name);
 
-        private readonly IColumnRepository _columnRepository = columnRepository;
-        private readonly IBoardRepository _boardRepository = boardRepository;
-
         public async Task<Guid> Handle(CreateColumnCommand command, CancellationToken cancellationToken = default)
         {
-            var board = await _boardRepository.GetByIdAsync(command.BoardId, cancellationToken);
-            if (board == null)
-                throw new InvalidOperationException($"Доска с id {command.BoardId} не найдена");
+            var board = await boardRepository.GetByIdAsync(command.BoardId, cancellationToken)
+                ?? throw new NotFoundException("Доска", command.BoardId);
 
-            var column = new Column(command.Name, board);
-            await _columnRepository.AddAsync(column, cancellationToken);
+            // Новая колонка встаёт в конец доски
+            var existing = await columnRepository.GetByBoardAsync(board.Id, cancellationToken: cancellationToken);
+            var column = new Column(board.Id, command.Name, existing.Count);
 
-            return column.Id; 
+            columnRepository.Add(column);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return column.Id;
         }
     }
 }
