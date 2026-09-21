@@ -1,5 +1,7 @@
 # TaskManager
 
+[![CI](https://github.com/NataliaMity/bestmaneger/actions/workflows/ci.yml/badge.svg)](https://github.com/NataliaMity/bestmaneger/actions/workflows/ci.yml)
+
 Канбан-API (доски → колонки → задачи) на .NET 10, чистая архитектура.
 
 ## Структура
